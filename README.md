@@ -2,12 +2,36 @@
 
 A collection of specialized Claude Code skills that encode the full development workflow for the LFX Self-Service platform. These skills turn Claude into a context-aware development partner that understands LFX conventions, architecture, and code patterns — eliminating the need to repeatedly explain project structure, naming rules, or coding standards.
 
+## Quick Install
+
+```bash
+git clone https://github.com/linuxfoundation/skills.git
+cd skills
+./install.sh
+```
+
+Then restart Claude Code, open any LFX repo, and type `/lfx` to get started.
+
+## How It Works
+
+Type `/lfx` and describe what you want in plain language:
+
+- **"Add a bio field to committee members"** — builds the full-stack feature automatically
+- **"How does the meeting data flow work?"** — explains the architecture in plain language
+- **"Check if my changes are ready for a PR"** — validates everything and offers to create the PR
+
+The `/lfx` skill auto-detects your repo, branch, and context, then routes you to the right workflow. No need to know which of the 8 skills to pick — just describe what you want.
+
+New to LFX development? Type `/lfx` and say **"show me an example"** for a walkthrough.
+
 ## Prerequisites
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and authenticated
 - Access to LFX repositories (for the skills to operate on)
 
-## Installation
+## Manual Installation
+
+If you prefer to install manually instead of using `./install.sh`:
 
 ### Step 1: Clone this repo
 
@@ -22,18 +46,19 @@ Claude Code auto-discovers skills from `~/.claude/skills/`. Symlink each skill i
 ```bash
 # From the cloned repo directory
 mkdir -p ~/.claude/skills
-for skill in lfx-*/; do
+for skill in lfx-*/ lfx/; do
   ln -sf "$(pwd)/$skill" ~/.claude/skills/"$(basename "$skill")"
 done
 ```
 
-This makes all seven `/lfx-*` skills available globally in every Claude Code session.
+This makes all `/lfx*` skills available globally in every Claude Code session.
 
 ### Step 3: Verify
 
-Restart Claude Code (or open a new session) in any LFX repo and type `/lfx-` — you should see all seven skills in the autocomplete list:
+Restart Claude Code (or open a new session) in any LFX repo and type `/lfx` — you should see all skills in the autocomplete list:
 
 ```
+/lfx                    ← start here (plain-language entry point)
 /lfx-coordinator
 /lfx-research
 /lfx-backend-builder
@@ -50,7 +75,7 @@ If you prefer skills scoped to a specific repo instead of global:
 ```bash
 # From inside a target repo (e.g., lfx-v2-ui)
 mkdir -p .claude/skills
-for skill in /path/to/skills/lfx-*/; do
+for skill in /path/to/skills/lfx-*/ /path/to/skills/lfx/; do
   ln -sf "$skill" .claude/skills/"$(basename "$skill")"
 done
 
@@ -62,6 +87,7 @@ echo '.claude/skills/' >> .gitignore
 
 ```bash
 rm -f ~/.claude/skills/lfx-*
+rm -f ~/.claude/skills/lfx
 ```
 
 ## Architecture
@@ -70,6 +96,9 @@ The skills form a layered system where each skill has a clear responsibility and
 
 ```
 ┌─────────────────────────────────────────────────────────┐
+│                    /lfx (entry point)                     │
+│     Plain-language router — describe what you want       │
+├─────────────────────────────────────────────────────────┤
 │              /lfx-coordinator (orchestrator)             │
 │       Researches, plans, delegates, validates            │
 ├──────────┬──────────┬───────────────┬───────────────────┤
@@ -86,6 +115,7 @@ The skills form a layered system where each skill has a clear responsibility and
 
 | Skill | Purpose | Mode | Tools |
 |-------|---------|------|-------|
+| **`/lfx`** | **Start here.** Describe what you want in plain language — auto-detects context and routes to the right skill | Router | Bash, Read, Glob, Grep, AskUserQuestion, **Skill** |
 | `/lfx-coordinator` | Orchestrates full feature development — researches, plans, delegates to builders in parallel, validates | Read + delegate | Bash, Read, Glob, Grep, AskUserQuestion, **Skill** |
 | `/lfx-research` | Explores upstream APIs, discovers code patterns, reads architecture docs, validates contracts via MCP | Read-only | Bash, Read, Glob, Grep, AskUserQuestion, **WebFetch** |
 | `/lfx-backend-builder` | Generates Express.js proxy endpoints, Go microservice code, shared types. Encodes three-file pattern, logging, Goa DSL, NATS messaging | Code gen | Bash, Read, **Write, Edit**, Glob, Grep, AskUserQuestion |
@@ -281,6 +311,13 @@ An **interactive setup guide** that walks through environment configuration step
 
 ## Typical Workflows
 
+### Start here — just describe what you want
+```
+/lfx → "Add a bio field to committee members" → auto-routes to coordinator → builds → validates → PR
+/lfx → "How does meeting data work?" → auto-routes to product architect → explains architecture
+/lfx → "Check if my changes are ready" → auto-routes to preflight → validates → offers PR creation
+```
+
 ### Build a new feature end-to-end
 ```
 /lfx-coordinator → researches → plans → delegates to /lfx-backend-builder + /lfx-ui-builder → validates → /lfx-preflight → PR
@@ -315,6 +352,11 @@ An **interactive setup guide** that walks through environment configuration step
 ## Project Structure
 
 ```
+├── lfx/
+│   ├── SKILL.md                    # Entry point — plain-language router
+│   └── references/
+│       ├── glossary.md             # LFX terms explained in plain language
+│       └── quickstart.md           # Example workflow transcripts
 ├── lfx-coordinator/
 │   ├── SKILL.md                    # Orchestrator — plans, delegates, validates
 │   └── references/

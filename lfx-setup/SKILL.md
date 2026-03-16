@@ -14,7 +14,18 @@ allowed-tools: Bash, Read, Glob, Grep, AskUserQuestion
 
 You are helping a contributor set up an LFX development environment from scratch. Walk through each step interactively, verifying success before moving on.
 
-**Key principle:** Verify each step before proceeding to the next. Don't assume success — check.
+**Key principle:** Verify each step before proceeding to the next.
+
+## What You'll Need (before we start)
+
+Before diving into the technical steps, here's what you should have ready:
+
+- **Access to the LFX GitHub organization** — you need to be able to clone LFX repositories. If you can visit `github.com/linuxfoundation` and see private repos, you're good.
+- **Access to the team 1Password vault** — some configuration values (API keys, secrets) are stored in 1Password under the "LFX One Dev Environment" vault. Ask your team lead if you don't have access.
+- **About 15 minutes** — first-time setup takes a bit for downloads and installs. Subsequent setups are faster.
+- **A terminal app** — Terminal.app (macOS), iTerm2, or any terminal emulator.
+
+Don't worry if you're not sure about any of these — I'll check each one as we go and help you get access if needed. Don't assume success — check.
 
 ## Repo Type Detection
 

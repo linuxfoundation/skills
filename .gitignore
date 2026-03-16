@@ -19,6 +19,9 @@ Thumbs.db
 # Claude AI assistant
 .claude
 
+# Installed skill symlinks (created by per-repo installation)
+.claude/skills/
+
 # Environment and configuration files
 .env
 .env.local

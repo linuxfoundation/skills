@@ -17,15 +17,16 @@ You coordinate development across LFX repos. You NEVER write code — you delega
 
 ## Input Validation
 
-Before starting, verify you have enough context. If any of these are missing, ask the user:
+Before starting, verify you have enough context. Auto-detect as much as possible — minimize questions to the user.
 
-| Required | Example | If Missing |
-|----------|---------|------------|
-| What to build/fix | "Add bio field to committee members" | Ask: "What feature or fix do you need?" |
-| Which domain | committees, meetings, votes | Infer from context or ask |
-| Scope | New feature, bug fix, field addition | Ask if ambiguous |
+| Required | How to Get It |
+|----------|---------------|
+| What to build/fix | If not clear from context, ask: "What feature or fix do you need?" |
+| Which domain | **Auto-detect** from the user's description: "committee member bio" → committees, "meeting attendance" → meetings, "vote results" → voting, "mailing list" → mailing lists. Only ask if truly ambiguous. |
+| Scope | **Auto-classify**: adding a field → field addition, new page → new feature, something broken → bug fix, changing behavior → modification. Never ask the user to classify. |
+| Branch | **Auto-derive** from JIRA ticket if mentioned (e.g., LFXV2-456 → `feat/LFXV2-456-description`), or suggest one based on the feature description. Don't ask the user for a branch name. |
 
-**Reject vague requests** like "improve the committees page" — ask for specifics.
+**Reject vague requests** like "improve the committees page" — but ask in plain language: "Could you tell me specifically what you'd like to add or change about the committees page?"
 
 ## Workflow
 
@@ -80,12 +81,22 @@ Use your Read, Glob, Grep, and Bash tools to quickly check:
 
 ## Step 4: Delegation Plan (PAUSE for approval)
 
-After research, output this format:
+After research, output a **plain-language summary first**, then technical details:
 
 ```
 ═══════════════════════════════════════════
-DELEGATION PLAN
+HERE'S WHAT I'M GOING TO DO
 ═══════════════════════════════════════════
+
+  1. [Plain-language step — e.g., "Add the bio data field to the committee service"]
+  2. [Plain-language step — e.g., "Update the shared data definitions"]
+  3. [Plain-language step — e.g., "Add a bio text input to the member form"]
+  4. [Plain-language step — e.g., "Display the bio on the member card"]
+
+Shall I proceed?
+
+TECHNICAL DETAILS (for reference)
+─────────────────────────────────
 
 Findings:
   - [what exists]
@@ -105,7 +116,6 @@ Risk flags:
   - [missing upstream API — blocks frontend until Go service is updated]
 
 ═══════════════════════════════════════════
-Proceed? (y/n)
 ```
 
 ### Upstream Go service changes are NOT optional
@@ -220,6 +230,16 @@ If validation fails:
 4. **Re-run validation** after the fix
 5. **Maximum 2 fix cycles** — if still failing after 2 attempts, report the remaining errors to the user
 
+**Plain-language error reporting:** When reporting errors to the user, translate technical errors into plain language:
+
+```
+Something went wrong during validation:
+  - What failed: The build couldn't find the bio field definition in the shared types
+  - What this means: The backend and frontend aren't in sync yet
+  - Can I fix it? Yes — I'll update the shared type definition and rebuild
+  - What you need to do: Nothing — I'll handle this automatically
+```
+
 ### Handling Skill Failures
 
 If a delegated skill reports an error in its completion report:
@@ -230,12 +250,28 @@ If a delegated skill reports an error in its completion report:
 
 ## Step 7: Summary
 
-Output a structured completion report:
+Output a **business summary first** (what the user cares about), then technical details (for reviewers):
 
 ```
 ═══════════════════════════════════════════
-DEVELOPMENT COMPLETE
+WHAT WAS DONE
 ═══════════════════════════════════════════
+
+You asked: "[original request in the user's own words]"
+
+What changed:
+  - [Plain-language description of each user-visible change]
+  - [e.g., "Committee members now have a bio text field"]
+  - [e.g., "The bio appears on the member profile card"]
+  - [e.g., "The bio can be edited in the member form"]
+
+What happens next:
+  - Run /lfx-preflight to validate your changes
+  - Create a pull request for code review
+  [- If cross-repo: "The Go service changes need to be deployed before the frontend changes will work"]
+
+TECHNICAL DETAILS (for reviewers)
+─────────────────────────────────
 
 Feature: [what was built]
 Branch: [branch name]
@@ -256,7 +292,6 @@ Code owner actions needed: [none / list protected file changes]
 Cross-repo dependencies: [e.g., "Go service must be deployed before frontend works"]
 
 ═══════════════════════════════════════════
-Next: Run /lfx-preflight before submitting your PR.
 ```
 
 ## Idempotency — Safe to Re-run

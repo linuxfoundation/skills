@@ -206,10 +206,18 @@ List:
 
 ## Results Report
 
+**Start with a one-line plain-language verdict** before any details:
+
 ```text
 ═══════════════════════════════════════════
 PREFLIGHT RESULTS
 ═══════════════════════════════════════════
+
+YOUR CHANGES LOOK GOOD AND ARE READY FOR REVIEW!
+(or: FOUND 2 ISSUES THAT NEED ATTENTION — see below)
+
+─────────────────────────────────────────
+Detailed checks:
 ✓ Working tree        — Clean, N commits ahead of main
 ✓ License headers     — All files have headers (2 auto-fixed)
 ✓ Formatting          — Applied (3 files reformatted)
@@ -247,12 +255,16 @@ If there are uncommitted changes from auto-fixes, ask:
 
 ### If All Checks Pass
 
-> "All preflight checks passed! Ready to create a PR. Would you like me to create it with `gh pr create`?"
+> "Your changes look good and are ready for review! Would you like me to create the pull request?"
 
 ### If Checks Fail
 
-Report all failures together, then ask:
-> "N issues found. Would you like me to fix what I can automatically?"
+Report failures in plain language, explaining what each means:
+> "Found 2 issues that need attention:
+> 1. **Build error**: [plain explanation of what went wrong and whether it can be auto-fixed]
+> 2. **Missing signoff**: [plain explanation and what the user needs to do]
+>
+> Want me to fix what I can automatically?"
 
 ## Scope Boundaries
 
