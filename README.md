@@ -65,6 +65,7 @@ Restart Claude Code (or open a new session) in any LFX repo and type `/lfx` — 
 /lfx-ui-builder
 /lfx-product-architect
 /lfx-preflight
+/lfx-pr-catchup
 /lfx-setup
 ```
 
@@ -108,7 +109,9 @@ The skills form a layered system where each skill has a clear responsibility and
 │ (codegen)│ (codegen)│  guidance)     │                  │
 ├──────────┴──────────┴───────────────┴───────────────────┤
 │  /lfx-preflight (validation)  │  /lfx-setup (env)      │
-└───────────────────────────────┴─────────────────────────┘
+├───────────────────────────────┴─────────────────────────┤
+│  /lfx-pr-catchup (standalone — morning PR dashboard)    │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ## Skill Overview
@@ -122,6 +125,7 @@ The skills form a layered system where each skill has a clear responsibility and
 | `/lfx-ui-builder` | Generates Angular 20 components, services, drawers, pagination UI, styling. Encodes signal patterns, PrimeNG wrappers | Code gen | Bash, Read, **Write, Edit**, Glob, Grep, AskUserQuestion |
 | `/lfx-product-architect` | Answers "where should this go?", traces data flows, makes placement decisions, explains design patterns | Read-only | Bash, Read, Glob, Grep, AskUserQuestion |
 | `/lfx-preflight` | Pre-PR validation — auto-fixes formatting & license headers, runs lint, build, checks protected files, offers PR creation | Validate + fix | Bash, Read, **Write, Edit**, Glob, Grep, AskUserQuestion |
+| `/lfx-pr-catchup` | Morning PR dashboard — unresolved comments, status changes, stale PRs, approved-but-not-merged across all your open PRs | Read-only | Bash, Read, Glob, Grep, AskUserQuestion |
 | `/lfx-setup` | Environment setup — prerequisites, clone, install, env vars, dev server. Adapts to Angular or Go repos | Interactive guide | Bash, Read, Glob, Grep, AskUserQuestion |
 
 ---
@@ -284,6 +288,23 @@ Runs a comprehensive **pre-PR validation** with auto-fix capabilities. Adapts al
 
 ---
 
+### `/lfx-pr-catchup`
+
+A **read-only** morning dashboard that shows all your open PRs across repos, classified by urgency.
+
+**Workflow:**
+1. **Auth check** — verifies `gh auth status`
+2. **Config** — uses defaults immediately (org filter and stale threshold can be passed inline, e.g., `/lfx-pr-catchup linuxfoundation`)
+3. **Fetch** — `gh search prs --author=@me --state=open` (up to 50)
+4. **Enrich** — GraphQL calls for review threads, reviews, merge status
+5. **Classify** — HIGH (unresolved comments, changes requested), MEDIUM (approved not merged, stale), LOW (no reviewers)
+6. **Render** — grouped by repo, "Needs Attention" first with details, "All Clear" compact
+7. **Drill-down** — pick a PR number for full comment threads, CI status, and diff summary
+
+**Edge cases:** auth failure (stops with instructions), rate limiting (partial results with reset time), inaccessible repos (skipped with note), 50+ PRs (warns, suggests org filter), GraphQL failure (falls back to REST).
+
+---
+
 ### `/lfx-setup`
 
 An **interactive setup guide** that walks through environment configuration step by step, verifying each step before proceeding.
@@ -339,6 +360,11 @@ An **interactive setup guide** that walks through environment configuration step
 /lfx-ui-builder → generates Angular component + service
 ```
 
+### Morning PR catch-up
+```
+/lfx-pr-catchup → fetches open PRs → enriches via GraphQL → renders attention dashboard → drill-down
+```
+
 ### Validate before submitting a PR
 ```
 /lfx-preflight → license headers → format → lint → build → protected files → PR
@@ -385,6 +411,8 @@ An **interactive setup guide** that walks through environment configuration step
 │   └── SKILL.md                    # Architecture guidance and decision trees
 ├── lfx-preflight/
 │   └── SKILL.md                    # Pre-PR validation and auto-fix
+├── lfx-pr-catchup/
+│   └── SKILL.md                    # Morning PR catch-up dashboard
 └── lfx-setup/
     └── SKILL.md                    # Environment setup guide
 ```
