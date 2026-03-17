@@ -63,11 +63,50 @@ If a subcommand requires a journey name and the user didn't provide one, run **L
 
 ### Step 1: Discover Repos
 
-Scan `~/lf/` for git repositories:
+Automatically detect where `linuxfoundation` org repos are cloned, then scan for valid repos:
 
 ```bash
-for dir in ~/lf/*/; do
-  if [ -d "$dir/.git" ]; then
+# Step 0: Resolve where linuxfoundation org repos are cloned
+LFX_REPOS_DIR=""
+
+# Method 1: If currently inside a linuxfoundation repo, use its parent
+if git remote -v 2>/dev/null | grep -q 'github\.com[:/]linuxfoundation/'; then
+  LFX_REPOS_DIR="$(dirname "$(git rev-parse --show-toplevel)")"
+fi
+
+# Method 2: If not in a repo, search common parent dirs for any linuxfoundation repo
+if [ -z "$LFX_REPOS_DIR" ]; then
+  for candidate in ~/lf ~/code ~/projects ~/workspace ~/src ~/dev; do
+    if [ -d "$candidate" ]; then
+      match=$(find "$candidate" -maxdepth 2 -name .git -type d 2>/dev/null | while read gitdir; do
+        repo_dir=$(dirname "$gitdir")
+        if git -C "$repo_dir" remote -v 2>/dev/null | grep -q 'github\.com[:/]linuxfoundation/'; then
+          dirname "$repo_dir"
+          break
+        fi
+      done)
+      if [ -n "$match" ]; then
+        LFX_REPOS_DIR="$match"
+        break
+      fi
+    fi
+  done
+fi
+
+# Method 3: Override via env var (always wins if set)
+if [ -n "${LFX_REPOS_DIR_OVERRIDE:-}" ]; then
+  LFX_REPOS_DIR="$LFX_REPOS_DIR_OVERRIDE"
+fi
+
+# If still not found, ask the user via AskUserQuestion:
+# "Where are your linuxfoundation repos cloned?"
+```
+
+Once `LFX_REPOS_DIR` is resolved, scan it for repos that belong to the `linuxfoundation` org:
+
+```bash
+for dir in "$LFX_REPOS_DIR"/*/; do
+  if [ -d "$dir/.git" ] && git -C "$dir" remote -v 2>/dev/null | grep -q 'github\.com[:/]linuxfoundation/'; then
     echo "$dir"
   fi
 done
@@ -76,12 +115,12 @@ done
 Present as a numbered list and **STOP — use `AskUserQuestion` and wait for the user to respond before continuing**:
 
 ```
-Scanning ~/lf/ for git repos...
+Scanning <discovered-dir> for linuxfoundation repos...
 
 Which repos are part of this journey? (type numbers, e.g. "1, 3")
-  1. ~/lf/lfx-v2-ui
-  2. ~/lf/lfx-v2-committee-service
-  3. ~/lf/lfx-v2-meeting-service
+  1. <discovered-dir>/lfx-v2-ui
+  2. <discovered-dir>/lfx-v2-committee-service
+  3. <discovered-dir>/lfx-v2-meeting-service
 ```
 
 **⛔ GATE: You MUST call `AskUserQuestion` here and wait for the user's response. Do NOT continue to Step 2 until the user has selected repos.** Parse their response (comma-separated numbers or repo names).

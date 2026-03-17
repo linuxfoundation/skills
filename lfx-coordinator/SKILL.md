@@ -60,8 +60,19 @@ Use your Read, Glob, Grep, and Bash tools to quickly check:
   ```bash
   # Find the upstream service from the proxy code
   grep -r "proxyRequest" apps/lfx-one/src/server/services/<domain>.service.ts | head -5
+  # Resolve where linuxfoundation repos are cloned (check current repo's parent first)
+  if git remote -v 2>/dev/null | grep -q 'github\.com[:/]linuxfoundation/'; then
+    LFX_REPOS_DIR="$(dirname "$(git rev-parse --show-toplevel)")"
+  else
+    for candidate in ~/lf ~/code ~/projects ~/workspace ~/src ~/dev; do
+      if [ -d "$candidate" ] && find "$candidate" -maxdepth 2 -name .git -type d 2>/dev/null | while read gitdir; do git -C "$(dirname "$gitdir")" remote -v 2>/dev/null | grep -q 'github\.com[:/]linuxfoundation/' && echo found && break; done | grep -q found; then
+        LFX_REPOS_DIR="$candidate"; break
+      fi
+    done
+  fi
+  [ -n "${LFX_REPOS_DIR_OVERRIDE:-}" ] && LFX_REPOS_DIR="$LFX_REPOS_DIR_OVERRIDE"
   # Check for local Go repos
-  ls -d ~/lf/lfx-v2-*-service 2>/dev/null
+  ls -d "$LFX_REPOS_DIR"/lfx-v2-*-service 2>/dev/null
   ```
 - **Check the upstream Go service for the needed field.** Once you've identified the repo, check its domain model, Goa design, and conversions:
   ```bash
@@ -122,7 +133,7 @@ Risk flags:
 
 When research reveals that the upstream Go microservice is missing a field or endpoint that the feature requires, the delegation plan MUST include a `/lfx-backend-builder` call for the Go repo. This is where the data model lives — without it, the field won't persist. The Go service is the source of truth.
 
-**You discover the upstream service during research (Step 3)** by reading the Express proxy code. Do NOT hardcode paths — use what you found. For example, if `committee.service.ts` calls `proxyRequest(req, 'LFX_V2_SERVICE', '/committees/...')`, the API path prefix `/committees/` tells you the upstream is `lfx-v2-committee-service` and you check `~/lf/lfx-v2-committee-service/` for local availability.
+**You discover the upstream service during research (Step 3)** by reading the Express proxy code. Do NOT hardcode paths — use what you found. For example, if `committee.service.ts` calls `proxyRequest(req, 'LFX_V2_SERVICE', '/committees/...')`, the API path prefix `/committees/` tells you the upstream is `lfx-v2-committee-service` and you check `$LFX_REPOS_DIR/lfx-v2-committee-service/` for local availability (where `$LFX_REPOS_DIR` is the auto-discovered directory from Step 3).
 
 **Common Go service changes for adding a field:**
 - Domain model: `internal/domain/model/*.go` — add the field to the struct

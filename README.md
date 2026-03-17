@@ -316,7 +316,7 @@ Combines feature branches from one or more repos into isolated git worktrees for
 /lfx-test-journey
 ```
 This starts the interactive create flow:
-1. Select which repos are involved (auto-discovers repos in `~/lf/`)
+1. Select which repos are involved (auto-discovers repos by finding directories with `linuxfoundation` GitHub remotes)
 2. Pick branches to include per repo (shows your unmerged branches)
 3. Name the journey
 4. The skill creates worktrees, merges branches, and tells you exactly where to `cd` and how to run the app
