@@ -43,3 +43,6 @@ logs/
 
 # Lint reports
 megalinter-reports/
+
+# Superpowers specs and plans (local only)
+docs/superpowers/
