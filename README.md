@@ -67,6 +67,7 @@ Restart Claude Code (or open a new session) in any LFX repo and type `/lfx` — 
 /lfx-preflight
 /lfx-pr-catchup
 /lfx-setup
+/lfx-test-journey
 ```
 
 ### Alternative: Per-repo installation
@@ -127,6 +128,7 @@ The skills form a layered system where each skill has a clear responsibility and
 | `/lfx-preflight` | Pre-PR validation — auto-fixes formatting & license headers, runs lint, build, checks protected files, offers PR creation | Validate + fix | Bash, Read, **Write, Edit**, Glob, Grep, AskUserQuestion |
 | `/lfx-pr-catchup` | Morning PR dashboard — unresolved comments, status changes, stale PRs, approved-but-not-merged across all your open PRs | Read-only | Bash, Read, Glob, Grep, AskUserQuestion |
 | `/lfx-setup` | Environment setup — prerequisites, clone, install, env vars, dev server. Adapts to Angular or Go repos | Interactive guide | Bash, Read, Glob, Grep, AskUserQuestion |
+| `/lfx-test-journey` | Combine branches from multiple repos into worktrees for journey testing | Interactive | Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion |
 
 ---
 
@@ -305,6 +307,40 @@ A **read-only** morning dashboard that shows all your open PRs across repos, cla
 
 ---
 
+### `/lfx-test-journey` — Multi-Branch Journey Testing
+
+Combines feature branches from one or more repos into isolated git worktrees for end-to-end journey testing. Use this when you have a user journey spread across multiple PRs/branches and need to test everything together before merging.
+
+**Quick start:**
+```
+/lfx-test-journey
+```
+This starts the interactive create flow:
+1. Select which repos are involved (auto-discovers repos in `~/lf/`)
+2. Pick branches to include per repo (shows your unmerged branches)
+3. Name the journey
+4. The skill creates worktrees, merges branches, and tells you exactly where to `cd` and how to run the app
+
+**After creating a journey:**
+```bash
+# Go to the worktree and run the app as usual
+cd ~/.lfx-journeys/<journey-name>/<repo-name>/
+yarn start    # (Angular) or go run cmd/*/main.go (Go)
+```
+
+**Managing journeys:**
+```
+/lfx-test-journey list                          # See all active journeys
+/lfx-test-journey status                        # Check if branches have new commits
+/lfx-test-journey refresh <journey-name>        # Re-merge with latest branch HEADs
+/lfx-test-journey edit <journey-name>           # Add/remove branches
+/lfx-test-journey teardown <journey-name>       # Clean up when done testing
+```
+
+**How it works:** Creates git worktrees (isolated working copies) at `~/.lfx-journeys/<journey-name>/`, merges your selected branches on top of main, and tracks everything in a manifest file. Your original branches are never modified. Each refresh does a clean re-merge from scratch.
+
+---
+
 ### `/lfx-setup`
 
 An **interactive setup guide** that walks through environment configuration step by step, verifying each step before proceeding.
@@ -365,6 +401,13 @@ An **interactive setup guide** that walks through environment configuration step
 /lfx-pr-catchup → fetches open PRs → enriches via GraphQL → renders attention dashboard → drill-down
 ```
 
+### Test a multi-branch user journey
+```
+/lfx-test-journey → pick repos → pick branches → creates worktrees → cd into worktree → yarn start
+/lfx-test-journey status → shows which branches have new commits → /lfx-test-journey refresh <name>
+/lfx-test-journey teardown <name> → cleans up when done
+```
+
 ### Validate before submitting a PR
 ```
 /lfx-preflight → license headers → format → lint → build → protected files → PR
@@ -413,8 +456,10 @@ An **interactive setup guide** that walks through environment configuration step
 │   └── SKILL.md                    # Pre-PR validation and auto-fix
 ├── lfx-pr-catchup/
 │   └── SKILL.md                    # Morning PR catch-up dashboard
-└── lfx-setup/
-    └── SKILL.md                    # Environment setup guide
+├── lfx-setup/
+│   └── SKILL.md                    # Environment setup guide
+└── lfx-test-journey/
+    └── SKILL.md                    # Multi-branch journey testing
 ```
 
 ## License

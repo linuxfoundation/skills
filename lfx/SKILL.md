@@ -74,6 +74,7 @@ Listen to what the user says and classify their intent. **Do not ask technical q
 | "What APIs ...", "Does ... exist?", "Find ...", "Research ..." | To explore and research | `/lfx-research` |
 | "Check my changes", "Ready for PR?", "Validate ...", "Preflight" | To validate before PR | `/lfx-preflight` |
 | "Set up", "Install", "Environment", "Getting started" | Environment setup | `/lfx-setup` |
+| "Test a journey", "Combine branches", "Integration test", "Test across branches", "Multi-branch test" | To test across branches | `/lfx-test-journey` |
 | "Show me an example", "How do I use this?", "Help" | Guidance | Show quickstart examples |
 
 ## Step 3: Translate and Route
@@ -132,6 +133,16 @@ No translation needed — just invoke:
 
 ```
 Skill(skill: "lfx-setup")
+```
+
+### Routing to `/lfx-test-journey`
+
+Pass the subcommand if the user specified one, otherwise invoke with no args (defaults to create):
+
+```
+Skill(skill: "lfx-test-journey")
+Skill(skill: "lfx-test-journey", args: "status")
+Skill(skill: "lfx-test-journey", args: "refresh committee-onboarding")
 ```
 
 ### Showing Examples
