@@ -8,6 +8,9 @@ description: >
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion
 ---
 
+<!-- Copyright The Linux Foundation and each contributor to LFX. -->
+<!-- SPDX-License-Identifier: MIT -->
+
 # LFX Intercom Integration Skill
 
 You are bringing Intercom up to the LFX standard in an Angular application. This
@@ -88,11 +91,15 @@ Also add these fields to the `Environment` interface if one exists.
 Create `src/app/services/intercom.service.ts` (or
 `src/app/shared/services/intercom.service.ts` — match existing service
 placement). This is the canonical LFX implementation validated across Mentorship,
-Crowdfunding, and PCC:
+Crowdfunding, and PCC.
+
+⚠️ **Adjust the `environment` import path** to match the chosen folder depth,
+e.g. `../../environments/environment` from `src/app/services/` or
+`../../../environments/environment` from `src/app/shared/services/`.
 
 ```typescript
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment'; // adjust depth if needed
 
 export interface IntercomBootOptions {
   api_base?: string;
