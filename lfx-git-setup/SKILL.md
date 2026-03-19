@@ -18,16 +18,16 @@ allowed-tools: Bash, Read, Glob, Grep, AskUserQuestion, WebFetch
 
 # LFX git Setup: DCO Signoff & GPG Signed Commits
 
-This skill walks contributors through two essential git contribution
-requirements used across linux foundation projects:
+This skill walks contributors through two essential Git contribution
+requirements used across Linux Foundation projects:
 
-1. **DCO signoff** (`--signoff` / `-s`) — adds a `signed-off-by: your name
-<email>` line to every commit, certifying you wrote the code and have the right
-   to contribute it under the project's license. This is a legal agreement, not
-   just a formality.
-2. **GPG signed commits** (`-s`) — cryptographically signs each commit with your
-   personal GPG key so GitHub can display a green "verified" badge, proving the
-   commit genuinely came from you.
+1. **DCO Signoff** (`--signoff` / `-s`) — Adds a `Signed-off-by: Your Name
+   <email>` line to every commit, certifying you wrote the code and have the
+   right to contribute it under the project's license. This is a legal
+   agreement, not just a formality.
+2. **GPG Signed Commits** (`-S`) — Cryptographically signs each commit with
+   your personal GPG key so GitHub can display a green "Verified" badge,
+   proving the commit genuinely came from you.
 
 ## Your First Step: Detect the User's Platform
 
@@ -36,14 +36,14 @@ steps are meaningfully different across platforms.
 
 Ask the user (or check their context):
 
-- **macos** → read `references/mac.md` for the full walkthrough
-- **linux** (ubuntu, fedora, debian, arch, etc.) → read `references/linux.md`
-- **windows** → read `references/windows.md` — note this is a supported but less
-  common setup path; wsl2 (windows subsystem for linux) users should follow
-  linux steps
+- **macOS** → Read `references/mac.md` for the full walkthrough
+- **Linux** (Ubuntu, Fedora, Debian, Arch, etc.) → Read `references/linux.md`
+- **Windows** → Read `references/windows.md` — note this is a supported but
+  less common setup path; WSL2 (Windows Subsystem for Linux) users should
+  follow Linux steps
 
-If it's unclear which platform they're on, just ask: "what operating system are
-you using — mac, linux, or windows?"
+If it's unclear which platform they're on, just ask: "What operating system
+are you using — Mac, Linux, or Windows?"
 
 ## Overall Workflow (all platforms)
 
@@ -89,10 +89,10 @@ Signed-off-by: your name <your-email@example.com>
 ### Option A: Always Sign Off Manually (simplest)
 
 ```bash
-git commit -s -s -m "your commit message"
+git commit -s -S -m "your commit message"
 ```
 
-Both flags together: `-s` for the DCO signoff, `-s` for gpg signature.
+Both flags together: `-s` for the DCO signoff, `-S` for the GPG signature.
 
 ### Option B: git alias (recommended for convenience)
 
@@ -102,7 +102,7 @@ Add a `c` shortcut (or something you will remember) to `~/.gitconfig` so `git c
 An example would be:
 
 ```bash
-git config --global alias.c 'commit -s -s'
+git config --global alias.c 'commit -s -S'
 ```
 
 Then use: `git c -m "your commit message"`
@@ -120,8 +120,8 @@ mkdir -p ~/.git-hooks
 cat > ~/.git-hooks/prepare-commit-msg << 'eof'
 #!/bin/sh
 # Auto-add DCO signed-off-by line
-sob=$(git var git_author_ident | sed -n 's/^\(.*>\).*$/signed-off-by: \1/p')
-grep -qs "^$sob" "$1" || echo "$sob" >> "$1"
+SOB=$(git var GIT_AUTHOR_IDENT | sed -n 's/^\(.*>\).*$/Signed-off-by: \1/p')
+grep -Fqs "$SOB" "$1" || echo "$SOB" >> "$1"
 eof
 
 # Make the git hook executable
@@ -140,7 +140,7 @@ Once setup is complete, do a test commit:
 
 ```bash
 # in any git repository
-git commit -s -s --allow-empty -m "test: verify DCO and gpg signing setup"
+git commit -s -S --allow-empty -m "test: verify DCO and gpg signing setup"
 git log --show-signature -1
 ```
 
@@ -153,14 +153,14 @@ On GitHub, after pushing, the commit will show a green **verified** badge.
 
 ## Troubleshooting Quick Reference
 
-| problem                                    | likely cause                    | fix                                               |
-| ------------------------------------------ | ------------------------------- | ------------------------------------------------- |
-| `error: gpg failed to sign the data`       | gpg agent issue                 | run `export gpg_tty=$(tty)` and retry             |
-| no verified badge on github                | key not uploaded or wrong email | check key email matches github verified email     |
-| `secret key not available`                 | key id mismatch                 | re-run `git config --global user.signingkey <id>` |
-| DCO check failing in ci                    | missing `signed-off-by`         | amend last commit: `git commit --amend -s`        |
-| gpg prompts not appearing                  | missing pinentry                | see platform reference file for pinentry setup    |
-| `gpg: signing failed: inappropriate ioctl` | tty not set                     | add `export gpg_tty=$(tty)` to your shell profile |
+| problem                                    | likely cause                    | fix                                                                                               |
+| ------------------------------------------ | ------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `error: gpg failed to sign the data`       | GPG agent issue                 | Run `export GPG_TTY=$(tty)` (macOS/Linux) and retry; on Windows, see the platform reference       |
+| No Verified badge on GitHub                | key not uploaded or wrong email | Check key email matches GitHub verified email                                                     |
+| `secret key not available`                 | key ID mismatch                 | Re-run `git config --global user.signingkey <ID>`                                                 |
+| DCO check failing in CI                    | missing `Signed-off-by`         | Amend last commit: `git commit --amend -s`                                                        |
+| GPG prompts not appearing                  | missing pinentry                | See platform reference file for pinentry setup                                                    |
+| `gpg: signing failed: Inappropriate ioctl` | TTY not set                     | Add `export GPG_TTY=$(tty)` to your shell profile (macOS/Linux); on Windows, see platform ref     |
 
 ## Platform Reference Files
 
