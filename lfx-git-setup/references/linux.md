@@ -170,8 +170,8 @@ source ~/.zshrc
 mkdir -p ~/.gnupg
 chmod 700 ~/.gnupg
 
-# Set a passphrase cache timeout (86400 = 24 hours, adjust as you like)
-cat >> ~/.gnupg/gpg-agent.conf << 'EOF'
+# Set a passphrase cache timeout if not already set (86400 = 24 hours, adjust as you like)
+grep -q "default-cache-ttl" ~/.gnupg/gpg-agent.conf 2>/dev/null || cat >> ~/.gnupg/gpg-agent.conf << 'EOF'
 default-cache-ttl 86400
 max-cache-ttl 86400
 EOF
@@ -301,6 +301,8 @@ export GPG_TTY=${SSH_TTY:-$(tty)}
 #### "gpg: WARNING: unsafe permissions on homedir '/home/user/.gnupg'"
 
 ```bash
-chmod 700 ~/.gnupg
-chmod 600 ~/.gnupg/*
+# 700 on directories
+find ~/.gnupg -type d -exec chmod 700 {} \;
+# 600 on files
+find ~/.gnupg -type f -exec chmod 600 {} \;
 ```

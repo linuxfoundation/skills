@@ -140,23 +140,27 @@ git config --global user.email "your-github-email@example.com"
 
 ### 3.4 Point Git at the correct gpg executable
 
-On Windows, Git may not find `gpg` automatically. Check where Gpg4win
-installed it:
+On Windows, Git may not find `gpg` automatically. In **Git Bash**, locate
+the Gpg4win installation with:
 
 ```bash
-where gpg
+command -v gpg
 ```
+
+> **Note:** `where gpg` is a CMD built-in and may not be available in Git
+> Bash. Use `where.exe gpg` if you need the Windows equivalent, or stick with
+> `command -v gpg` in Git Bash.
 
 A common path is `C:/Program Files (x86)/GnuPG/bin/gpg.exe`. Tell Git:
 
 ```bash
-git config --global gpg.program "C:/Program Files (x86)/GnuPG/bin/gpg.exe"
+git config --global gpg.program "$(command -v gpg)"
 ```
 
-Or if you're using Git Bash, use a Unix-style path resolver:
+Or if you know the exact path, set it explicitly:
 
 ```bash
-git config --global gpg.program "$(command -v gpg)"
+git config --global gpg.program "C:/Program Files (x86)/GnuPG/bin/gpg.exe"
 ```
 
 ### 3.5 Verify ~/.gitconfig
@@ -231,7 +235,7 @@ git log --show-signature -1
 #### "gpg: signing failed: No secret key"
 
 Make sure the `gpg.program` path in `.gitconfig` is correct and points to the
-Gpg4win installation. Run `where gpg` in Git Bash to confirm the path.
+Gpg4win installation. Run `command -v gpg` in Git Bash to confirm the path.
 
 #### Passphrase prompt never appears
 

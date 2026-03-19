@@ -1,7 +1,7 @@
 <!-- Copyright The Linux Foundation and each contributor to LFX. -->
 <!-- SPDX-License-Identifier: MIT -->
 
-# MacOS: GPG + DCO Git Setup Guide
+# macOS: GPG + DCO Git Setup Guide
 
 This guide walks you through setting up GPG-signed commits and DCO signoff on
 macOS. You'll use **Homebrew** (the standard macOS package manager) and
@@ -235,7 +235,7 @@ And the commit message body should contain:
 Signed-off-by: Your Name <you@example.com>
 ```
 
-## Troubleshooting on MacOS
+## Troubleshooting on macOS
 
 ### Common Issues
 

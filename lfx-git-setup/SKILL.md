@@ -21,10 +21,10 @@ allowed-tools: Bash, Read, Glob, Grep, AskUserQuestion, WebFetch
 This skill walks contributors through two essential git contribution
 requirements used across linux foundation projects:
 
-1. **DCO signoff** (`--signoff` / `-s`) — adds a `signed-off-by: your name
-<email>` line to every commit, certifying you wrote the code and have the right
-   to contribute it under the project's license. This is a legal agreement, not
-   just a formality.
+1. **DCO signoff** (`--signoff` / `-s`) — adds a 
+  `Signed-off-by: your name <email>` line to every commit, certifying you wrote
+  the code and have the right to contribute it under the project's license. This
+  is a legal agreement, not just a formality.
 2. **GPG signed commits** (`-S`) — cryptographically signs each commit with your
    personal GPG key so GitHub can display a green "verified" badge, proving the
    commit genuinely came from you.
@@ -56,7 +56,7 @@ The end goal is a `~/.gitconfig` that looks roughly like this:
     signingkey = abc123def456  # your gpg key id
 
 [commit]
-    gpgSign = true             # auto-sign every commit with -s
+    gpgSign = true             # auto-sign every commit with -S (GPG signing)
 
 [tag]
     gpgSign = true             # auto-sign tags too
@@ -119,9 +119,9 @@ mkdir -p ~/.git-hooks
 # create the hook script
 cat > ~/.git-hooks/prepare-commit-msg << 'eof'
 #!/bin/sh
-# Auto-add DCO signed-off-by line
-sob=$(git var git_author_ident | sed -n 's/^\(.*>\).*$/signed-off-by: \1/p')
-grep -qs "^$sob" "$1" || echo "$sob" >> "$1"
+# Auto-add DCO Signed-off-by line
+sob=$(git var git_author_ident | sed -n 's/^\(.*>\).*$/Signed-off-by: \1/p')
+grep -Fqs "^$sob" "$1" || echo "$sob" >> "$1"
 eof
 
 # Make the git hook executable
