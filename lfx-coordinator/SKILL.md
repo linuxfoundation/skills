@@ -52,6 +52,15 @@ Step 7: Summary — report results, suggest /lfx-preflight
 - Build order: Upstream Go service → Shared types → Express proxy → Frontend
 - **Identify which repos need changes** — if both a Go service and lfx-v2-ui are involved, plan for both
 
+## References
+
+| Topic | File |
+|-------|------|
+| All queryable resource types, which service publishes each, and how to add new fields or types | [references/indexed-data-types.md](references/indexed-data-types.md) |
+| Shared TypeScript types used across Angular and Express | [references/shared-types.md](references/shared-types.md) |
+
+Read the relevant reference before planning work that involves query service usage, indexing changes, or adding fields to indexed resources.
+
 ## Step 3: Research (do this inline — NOT via Skill delegation)
 
 Use your Read, Glob, Grep, and Bash tools to quickly check:
