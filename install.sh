@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 # LFX Skills Installer
-# Symlinks all LFX skills into ~/.claude/skills/ so they're available globally in Claude Code.
+# Symlinks all LFX skills into ~/.claude/skills/ so they're available globally in your AI coding assistant.
 
 set -euo pipefail
 
@@ -54,7 +54,7 @@ fi
 
 echo ""
 echo "Next steps:"
-echo "  1. Restart Claude Code (or open a new session)"
+echo "  1. Restart your AI coding assistant (or open a new session)"
 echo "  2. Type /lfx to get started"
 echo ""
 echo "Available skills:"
