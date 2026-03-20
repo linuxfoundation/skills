@@ -1,0 +1,11 @@
+{
+  "name": "lfx-platform",
+  "description": "Platform engineering tools for the LFX v2 Kubernetes platform. Provides troubleshooting and deployment workflows using Datadog, Kubernetes, AWS, GitHub, and ArgoCD.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Linux Foundation",
+    "url": "https://github.com/linuxfoundation"
+  },
+  "homepage": "https://github.com/linuxfoundation/lfx-skills",
+  "license": "MIT"
+}

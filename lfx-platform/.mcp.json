@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "datadog lfx": {
+      "type": "connector",
+      "connector": "datadog"
+    },
+    "github": {
+      "type": "connector",
+      "connector": "github"
+    }
+  },
+  "_extensions": {
+    "note": "The Kubernetes and AWS MCP servers are distributed as Desktop Extensions (.mcpb) in the extensions/ folder. Install each .mcpb file via Claude Desktop → File → Install Extension, or run /platform-setup which will guide you through it.",
+    "k8s_dev": "extensions/k8s_dev.mcpb",
+    "k8s_stag": "extensions/k8s_stag.mcpb",
+    "k8s_prod": "extensions/k8s_prod.mcpb",
+    "AWS_lfx_dev": "extensions/aws_lfx_dev.mcpb",
+    "AWS_lfx_stag": "extensions/aws_lfx_stag.mcpb",
+    "AWS_lfx_prod": "extensions/aws_lfx_prod.mcpb"
+  }
+}
