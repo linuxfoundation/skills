@@ -85,7 +85,22 @@ gh api repos/linuxfoundation/<repo-name>/contents/design/<file>.go \
 | Surveys | `lfx-v2-survey-service` |
 | Members | `lfx-v2-member-service` |
 
-**If the upstream Go repo exists locally** (check `~/lf/lfx-v2-*-service`), read the files directly instead of using `gh api`. Local reads are faster and more reliable.
+**If the upstream Go repo exists locally**, read the files directly instead of using `gh api`. Local reads are faster and more reliable. To find local repos, auto-detect where `linuxfoundation` org repos are cloned:
+
+```bash
+# Resolve the linuxfoundation repos directory
+if git remote -v 2>/dev/null | grep -q 'github\.com[:/]linuxfoundation/'; then
+  LFX_REPOS_DIR="$(dirname "$(git rev-parse --show-toplevel)")"
+else
+  for candidate in ~/lf ~/code ~/projects ~/workspace ~/src ~/dev; do
+    if [ -d "$candidate" ] && find "$candidate" -maxdepth 2 -name .git -type d 2>/dev/null | while read gitdir; do git -C "$(dirname "$gitdir")" remote -v 2>/dev/null | grep -q 'github\.com[:/]linuxfoundation/' && echo found && break; done | grep -q found; then
+      LFX_REPOS_DIR="$candidate"; break
+    fi
+  done
+fi
+[ -n "${LFX_REPOS_DIR_OVERRIDE:-}" ] && LFX_REPOS_DIR="$LFX_REPOS_DIR_OVERRIDE"
+# Then check: ls -d "$LFX_REPOS_DIR"/lfx-v2-*-service 2>/dev/null
+```
 
 **Report:**
 - Endpoint exists? (path, method, status codes)
@@ -247,4 +262,4 @@ This keeps the user informed that exploration is happening and what's being chec
 - **Be specific** — include file paths, method names, field names
 - **Flag blockers** — if an upstream API doesn't exist, say so clearly
 - **Include example content** — read and include the key sections of example files
-- **Prefer local reads** — if a Go repo exists at `~/lf/`, read it directly instead of using `gh api`
+- **Prefer local reads** — if a Go repo exists locally (auto-detected via `linuxfoundation` org remote discovery), read it directly instead of using `gh api`
