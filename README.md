@@ -66,6 +66,7 @@ Restart your AI coding assistant (or open a new session) in any LFX repo and typ
 /lfx-backend-builder
 /lfx-ui-builder
 /lfx-product-architect
+/lfx-review-guard
 /lfx-preflight
 /lfx-pr-catchup
 /lfx-setup
@@ -114,7 +115,9 @@ The skills form a layered system where each skill has a clear responsibility and
 │ builder  │ builder  │ (read-only     │  exploration)    │
 │ (codegen)│ (codegen)│  guidance)     │                  │
 ├──────────┴──────────┴───────────────┴───────────────────┤
-│  /lfx-preflight (validation)  │  /lfx-setup (env)      │
+│  /lfx-review-guard (self-review) │ /lfx-preflight (valid) │
+├──────────────────────────────────┴────────────────────────┤
+│  /lfx-setup (env)                                         │
 ├───────────────────────────────┴─────────────────────────┤
 │  /lfx-pr-catchup (standalone — morning PR dashboard)    │
 └─────────────────────────────────────────────────────────┘
@@ -130,6 +133,7 @@ The skills form a layered system where each skill has a clear responsibility and
 | `/lfx-backend-builder` | Generates Express.js proxy endpoints, Go microservice code, shared types. Encodes three-file pattern, logging, Goa DSL, NATS messaging | Code gen | Bash, Read, **Write, Edit**, Glob, Grep, AskUserQuestion |
 | `/lfx-ui-builder` | Generates Angular 20 components, services, drawers, pagination UI, styling. Encodes signal patterns, PrimeNG wrappers | Code gen | Bash, Read, **Write, Edit**, Glob, Grep, AskUserQuestion |
 | `/lfx-product-architect` | Answers "where should this go?", traces data flows, makes placement decisions, explains design patterns | Read-only | Bash, Read, Glob, Grep, AskUserQuestion |
+| `/lfx-review-guard` | Self-review checklist — catches 15 common reviewer blockers before or after submitting a PR | Read-only | Bash, Read, Glob, Grep, AskUserQuestion |
 | `/lfx-preflight` | Pre-PR validation — auto-fixes formatting & license headers, runs lint, build, checks protected files, offers PR creation | Validate + fix | Bash, Read, **Write, Edit**, Glob, Grep, AskUserQuestion |
 | `/lfx-pr-catchup` | Morning PR dashboard — unresolved comments, status changes, stale PRs, approved-but-not-merged across all your open PRs | Read-only | Bash, Read, Glob, Grep, AskUserQuestion |
 | `/lfx-setup` | Environment setup — prerequisites, clone, install, env vars, dev server. Adapts to Angular or Go repos | Interactive guide | Bash, Read, Glob, Grep, AskUserQuestion |
@@ -279,6 +283,31 @@ A **read-only** advisory skill that answers architectural questions without gene
 
 ---
 
+### `/lfx-review-guard`
+
+A **read-only** self-review checklist that catches the patterns most commonly flagged by reviewers. Can be run after development (before `/lfx-preflight`) or on PRs already submitted.
+
+**15 checks:**
+1. **Raw HTML elements** — raw `<input>`, `<select>`, `<textarea>` must use LFX wrappers; `animate-pulse` divs must use `<p-skeleton>`
+2. **Dead code** — unused providers, imports, methods, signals, unbound component outputs
+3. **Component responsibility** — 4+ service injections flagged for discussion (god components)
+4. **Loading states** — stats showing `0` during loading, missing guards, loading not reset on re-fetch
+5. **Type safety in templates** — no `!` non-null assertions, no falsy `||` where `??` is needed
+6. **Error handling** — no silent or duplicate/unreachable `catchError`; consistent fallbacks
+7. **Signal patterns** — no `BehaviorSubject` for simple state, no `cdr.detectChanges()`, no `model()` for internal state
+8. **Upstream API alignment** — parameter names match upstream contracts, no invented fields
+9. **PR description completeness** — removed UI elements, permission changes, and error handling changes documented
+10. **Accessibility** — `aria-pressed` on toggles, no nested interactive elements, no focusable items behind overlays
+11. **Design token compliance** — no hardcoded Tailwind colors; use LFX design tokens
+12. **N+1 API patterns** — no per-item API calls in loops when batch endpoints exist
+13. **Template/config completeness** — every config entry has a matching template case, no partial wiring
+14. **Stale data during navigation** — components re-fetch on input/route changes, no stuck loading states
+15. **Visitor/permission gating** — permission guards account for role loading state, no content flashing
+
+**Output:** Each check reports `✓` pass, `⚠` discuss, or `✗` blocker with file locations and fix suggestions.
+
+---
+
 ### `/lfx-preflight`
 
 Runs a comprehensive **pre-PR validation** with auto-fix capabilities. Adapts all checks to the repo type.
@@ -416,6 +445,11 @@ An **interactive setup guide** that walks through environment configuration step
 /lfx-test-journey teardown <name> → cleans up when done
 ```
 
+### Self-review for reviewer blockers
+```
+/lfx-review-guard → scans changed files → reports blockers, discussion items, and passes → fix or proceed
+```
+
 ### Validate before submitting a PR
 ```
 /lfx-preflight → license headers → format → lint → build → protected files → PR
@@ -460,6 +494,8 @@ An **interactive setup guide** that walks through environment configuration step
 │       └── frontend-service.md     # Service patterns and state management
 ├── lfx-product-architect/
 │   └── SKILL.md                    # Architecture guidance and decision trees
+├── lfx-review-guard/
+│   └── SKILL.md                    # Self-review checklist for reviewer blockers
 ├── lfx-preflight/
 │   └── SKILL.md                    # Pre-PR validation and auto-fix
 ├── lfx-pr-catchup/
