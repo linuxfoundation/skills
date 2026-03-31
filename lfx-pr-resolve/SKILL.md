@@ -24,6 +24,16 @@ Determine which PR to work on. The user may provide:
 - A PR URL (e.g., `https://github.com/org/repo/pull/142`)
 - Nothing — auto-detect from the current branch
 
+### Verify GitHub CLI Authentication
+
+Before making any `gh` calls, verify authentication:
+
+```bash
+gh auth status 2>&1
+```
+
+If auth fails, stop and tell the user to run `gh auth login`.
+
 ### Auto-detection
 
 ```bash
@@ -38,20 +48,25 @@ If no PR is found for the current branch, ask:
 
 > "I don't see an open PR for this branch. Which PR would you like to address? (Give me a number or URL)"
 
-### Verify GitHub CLI Authentication
+## Step 2: Fetch PR Details and Review Threads
+
+### Derive Repository Variables
+
+Extract the owner, repo, and PR number from the identified PR. If the user provided a URL, parse it. If auto-detected, derive from the current repo:
 
 ```bash
-gh auth status 2>&1
+# From the current repo's remote
+OWNER=$(gh repo view --json owner -q '.owner.login')
+REPO=$(gh repo view --json name -q '.name')
+# NUMBER comes from Step 1 (user input or auto-detection)
 ```
 
-If auth fails, stop and tell the user to run `gh auth login`.
-
-## Step 2: Fetch PR Details and Review Threads
+### Fetch Review Threads
 
 Fetch the PR metadata and all review threads in a single GraphQL call:
 
 ```bash
-gh api graphql -f query='
+gh api graphql -F query=@- -f owner="$OWNER" -f repo="$REPO" -F number=$NUMBER <<'GRAPHQL'
 query($owner: String!, $repo: String!, $number: Int!) {
   repository(owner: $owner, name: $repo) {
     pullRequest(number: $number) {
@@ -93,8 +108,11 @@ query($owner: String!, $repo: String!, $number: Int!) {
       }
     }
   }
-}' -f owner="$OWNER" -f repo="$REPO" -F number=$NUMBER
+}
+GRAPHQL
 ```
+
+**Pagination note:** The query caps at 100 review threads and 20 comments per thread. This covers the vast majority of PRs. If a PR exceeds these limits, fetch additional pages using `pageInfo { hasNextPage endCursor }` and the `after` parameter.
 
 ### Filter to Actionable Threads
 
@@ -115,13 +133,13 @@ For each unresolved thread, extract:
 
 - **No unresolved threads**: Tell the user — "All review threads are already resolved! Nothing to address." Stop here.
 - **Outdated threads**: Include them but flag them — the code may have shifted since the comment was made. Read the current file to determine if the feedback still applies.
-- **General PR review comments** (not attached to a specific line): These appear as reviews with a `body` but no associated thread path. Collect these separately — they need responses but may not require code changes.
+- **General PR review comments** (not attached to a specific line): These appear as reviews with a `body` but no associated thread path. Collect these separately — they need responses but may not require code changes. You will respond to each of these later via a PR-level comment that `@mentions` the reviewer and references the commit that addresses their feedback (if any).
 
 ## Step 3: Validate Each Comment Against Repo Patterns
 
 Before categorizing or acting on any comment, validate whether the reviewer's feedback is actually correct. Reviewers can make mistakes — they may misread the code, apply conventions from a different repo, or flag something that is already handled elsewhere. Blindly implementing every comment can introduce regressions.
 
-For each unresolved thread:
+For each unresolved thread and each collected general PR review comment:
 
 1. **Read the actual code** at the referenced file and line — not just the diff snippet the reviewer saw. Read enough surrounding context (20-30 lines) to understand what the code is doing.
 2. **Check the repo's existing patterns** — search for how similar code is written elsewhere in the codebase. If the reviewer says "use X pattern" but the rest of the repo uses Y pattern, that's a red flag.
@@ -243,7 +261,7 @@ For simple, targeted fixes (rename a variable, add a null check, fix an import),
 
 ## Step 6: Validate Changes
 
-After all code changes are made, run validation. Delegate to preflight with the review-skip flag since this is an iteration, not a fresh PR:
+After all code changes are made, run validation. Delegate to preflight with `--skip-review` since this is an iteration, not a fresh PR:
 
 ```bash
 # Quick validation — format, lint, build
@@ -272,9 +290,9 @@ Address review comments from @[reviewer1], @[reviewer2]:
 - [file]: responded to question about [topic]
 
 Resolves [N] review threads.
-
-Signed-off-by: [user name] <[user email]>
 ```
+
+Note: The `--signoff` flag automatically appends the `Signed-off-by:` trailer — do not include it manually in the message body.
 
 ### Commit Rules
 
@@ -296,8 +314,6 @@ Address review comments from @[reviewer1]:
 - path/to/service.ts: explained error handling approach (no code change)
 
 Resolves 3 review threads.
-
-Signed-off-by: [name] <[email]>
 EOF
 )"
 ```
@@ -311,7 +327,7 @@ After committing, respond to each review thread on GitHub. This is the critical 
 **For code changes made:**
 
 ```bash
-gh api graphql -f query='
+gh api graphql -F query=@- -f threadId="$THREAD_ID" -f body="$RESPONSE_BODY" <<'GRAPHQL'
 mutation($threadId: ID!, $body: String!) {
   addPullRequestReviewThreadReply(input: {
     pullRequestReviewThreadId: $threadId
@@ -319,7 +335,8 @@ mutation($threadId: ID!, $body: String!) {
   }) {
     comment { id }
   }
-}' -f threadId="$THREAD_ID" -f body="$RESPONSE_BODY"
+}
+GRAPHQL
 ```
 
 Response body:
@@ -375,14 +392,15 @@ the same approach in [file1], [file2], etc."]
 After responding to each thread, resolve it. Only resolve threads where the feedback has been fully addressed — if a thread required user input and the user chose not to address it, leave it unresolved.
 
 ```bash
-gh api graphql -f query='
+gh api graphql -F query=@- -f threadId="$THREAD_ID" <<'GRAPHQL'
 mutation($threadId: ID!) {
   resolveReviewThread(input: {
     threadId: $threadId
   }) {
     thread { isResolved }
   }
-}' -f threadId="$THREAD_ID"
+}
+GRAPHQL
 ```
 
 ### Do NOT Resolve If
@@ -414,7 +432,7 @@ git push
 After all threads are responded to and resolved, post a single summary comment on the PR. This gives reviewers a one-stop overview of everything that was addressed in this iteration:
 
 ```bash
-gh pr comment $NUMBER --body "$(cat <<'EOF'
+gh pr comment $NUMBER --repo $OWNER/$REPO --body "$(cat <<'EOF'
 ## Review Feedback Addressed
 
 Commit: [full SHA]
