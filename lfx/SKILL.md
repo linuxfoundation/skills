@@ -74,6 +74,7 @@ Listen to what the user says and classify their intent. **Do not ask technical q
 | "How does ... work?", "Where is ...", "Explain ...", "Architecture of ..." | To understand the system | `/lfx-product-architect` |
 | "What APIs ...", "Does ... exist?", "Find ...", "Research ..." | To explore and research | `/lfx-research` |
 | "Check my changes", "Ready for PR?", "Validate ...", "Preflight" | To validate before PR | `/lfx-preflight` |
+| "Address PR comments", "Fix review feedback", "Resolve PR threads", "Handle PR #142 comments" | To address PR review feedback | `/lfx-pr-resolve` |
 | "Set up", "Install", "Environment", "Getting started" | Environment setup | `/lfx-setup` |
 | "Test a journey", "Combine branches", "Integration test", "Test across branches", "Multi-branch test" | To test across branches | `/lfx-test-journey` |
 | "Show me an example", "How do I use this?", "Help" | Guidance | Show quickstart examples |
@@ -126,6 +127,16 @@ No translation needed — just invoke:
 
 ```
 Skill(skill: "lfx-preflight")
+```
+
+### Routing to `/lfx-pr-resolve`
+
+Pass the PR number or URL if the user provided one, otherwise invoke with no args (auto-detects from current branch):
+
+```
+Skill(skill: "lfx-pr-resolve", args: "#142")
+Skill(skill: "lfx-pr-resolve", args: "https://github.com/org/repo/pull/142")
+Skill(skill: "lfx-pr-resolve")
 ```
 
 ### Routing to `/lfx-setup`
@@ -192,6 +203,7 @@ Once the delegated skill completes, check back with the user:
 - If they built something → "Your changes are ready! Would you like me to run a preflight check before you submit a PR?"
 - If they researched something → "Would you like to go ahead and build this, or do you have more questions?"
 - If they validated → "Everything looks good! Want me to help create the pull request?"
+- If they addressed PR feedback → "Review comments are addressed and pushed! Run /lfx-pr-catchup to monitor for any follow-up."
 
 ## Scope Boundaries
 

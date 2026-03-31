@@ -1,0 +1,53 @@
+{
+  "skill_name": "lfx-pr-resolve",
+  "evals": [
+    {
+      "id": 0,
+      "name": "standard-review-feedback",
+      "prompt": "I got review comments on PR #142 in lfx-v2-ui. Can you address them?",
+      "expected_output": "Agent fetches PR threads, categorizes comments, presents a plan, makes changes, commits with summary, responds to threads, resolves them, and posts a summary comment.",
+      "files": [],
+      "assertions": [
+        {"id": "presents-categorized-plan", "description": "Agent presents a structured plan categorizing all comments before making any changes"},
+        {"id": "commit-message-references-pr", "description": "Commit message includes PR #142 and @-mentions the reviewers"},
+        {"id": "commit-message-lists-changes", "description": "Commit body itemizes each file change with reviewer attribution"},
+        {"id": "includes-signoff", "description": "Commit message includes Signed-off-by line"},
+        {"id": "responds-per-thread", "description": "Each review thread gets an individual response"},
+        {"id": "response-references-commit", "description": "Thread responses reference the commit SHA"},
+        {"id": "resolves-threads", "description": "Uses resolveReviewThread mutation for addressed threads"},
+        {"id": "posts-summary-comment", "description": "Posts a single summary comment on the PR"},
+        {"id": "summary-groups-by-type", "description": "Summary organizes items by type"}
+      ]
+    },
+    {
+      "id": 1,
+      "name": "mixed-feedback",
+      "prompt": "My PR for the committee member bio field has review feedback — some code changes and a question about why I used a signal instead of BehaviorSubject. Address what you can and flag what needs my input.",
+      "expected_output": "Agent categorizes comments into code changes vs questions vs discussion, presents plan with needs-your-input items, pauses for approval, handles each category differently.",
+      "files": [],
+      "assertions": [
+        {"id": "categorizes-by-type", "description": "Distinguishes code changes, questions, and discussion items"},
+        {"id": "flags-discussion-for-input", "description": "bio_updated_at discussion flagged as needing user input"},
+        {"id": "pauses-for-approval", "description": "Agent waits for user approval before making changes"},
+        {"id": "handles-question-differently", "description": "Signal vs BehaviorSubject question gets explanation, not code change"},
+        {"id": "commit-excludes-unresolved", "description": "Commit does not claim discussion items were resolved"},
+        {"id": "leaves-discussion-unresolved", "description": "Does NOT resolve threads needing user direction"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "auto-detect-branch",
+      "prompt": "Fix the review comments on my current PR",
+      "expected_output": "Agent auto-detects no PR on main, asks user, then addresses only unresolved threads.",
+      "files": [],
+      "assertions": [
+        {"id": "detects-no-pr", "description": "Recognizes main branch has no PR and asks the user"},
+        {"id": "skips-resolved-thread", "description": "Thread 3 (resolved) excluded from plan"},
+        {"id": "handles-only-unresolved", "description": "Only threads 1 and 2 appear in the plan"},
+        {"id": "commit-message-references-pr", "description": "Commit references PR #205 and @jorge"},
+        {"id": "responds-per-thread", "description": "Each unresolved thread gets individual response"},
+        {"id": "posts-summary-comment", "description": "Posts summary comment on PR"}
+      ]
+    }
+  ]
+}
