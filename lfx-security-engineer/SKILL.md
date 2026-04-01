@@ -205,7 +205,7 @@ Rust is detected via `Cargo.toml` before the TypeScript BFF fallback — a`Cargo
 | Dockerfile exposing a port | Containerized server application |
 | No index.html, src/app/, or *.vue files | Absence of frontend structure corroborates BFF |
 
-The `typescript-bff` type applies the same access control, injection, auth, andlogging checks as `angular` — both are Node.js/TypeScript server environments.
+The `typescript-bff` type applies the same access control, injection, auth, and logging checks as the server-side TypeScript paths in LFX's Angular repo (for example, its Express-based proxy layer); these checks always target Node.js/TypeScript server code, not browser-only Angular components.
 
 **Secondary signals — Rust** (use to confirm if primary is ambiguous):
 
