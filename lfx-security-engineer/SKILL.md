@@ -8,6 +8,7 @@ description: >
   data handling, infrastructure config, or database schema changes.
 allowed-tools: Bash, Read, Glob, Grep, AskUserQuestion, WebFetch
 ---
+
 <!-- Copyright The Linux Foundation and each contributor to LFX. -->
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Tool names in this file use Claude Code vocabulary. See docs/tool-mapping.md for other platforms. -->
@@ -107,7 +108,7 @@ concrete fix.
 ```yaml
 - name: Security Review
   run: /lfx-security-engineer --ci-mode --format json
-  continue-on-error: false  # Fail the build on blockers
+  continue-on-error: false # Fail the build on blockers
 ```
 
 ### Example 7: Watch Mode for Active Development (Power User)
@@ -190,71 +191,71 @@ Angular detection uses the same signals as `lfx-preflight`: `apps/lfx-one/angula
 
 **Secondary signals — Angular** (use to confirm if primary is ambiguous):
 
-| File / Pattern | What it tells you |
-| --- | --- |
-| `apps/lfx-one/angular.json` | LFX monorepo Angular workspace — primary LFX signal (matches lfx-preflight) |
-| `turbo.json` | LFX Turborepo config — present in the LFX monorepo alongside Angular workspace |
-| `angular.json` at repo root | Angular CLI workspace config for non-LFX Angular repos — very strong signal |
-| `ng-package.json` | Angular library built with ng-packagr |
-| `.angular/` directory | Angular CLI cache (v14+) |
-| `tsconfig.app.json` | Angular CLI generates this specifically |
-| `src/main.ts` containing `bootstrapApplication` or `platformBrowserDynamic` | Angular bootstrap entrypoint |
-| `src/app/app.module.ts` or `src/app/app.config.ts` | Standard Angular app structure |
+| File / Pattern                                                              | What it tells you                                                              |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `apps/lfx-one/angular.json`                                                 | LFX monorepo Angular workspace — primary LFX signal (matches lfx-preflight)    |
+| `turbo.json`                                                                | LFX Turborepo config — present in the LFX monorepo alongside Angular workspace |
+| `angular.json` at repo root                                                 | Angular CLI workspace config for non-LFX Angular repos — very strong signal    |
+| `ng-package.json`                                                           | Angular library built with ng-packagr                                          |
+| `.angular/` directory                                                       | Angular CLI cache (v14+)                                                       |
+| `tsconfig.app.json`                                                         | Angular CLI generates this specifically                                        |
+| `src/main.ts` containing `bootstrapApplication` or `platformBrowserDynamic` | Angular bootstrap entrypoint                                                   |
+| `src/app/app.module.ts` or `src/app/app.config.ts`                          | Standard Angular app structure                                                 |
 
 **Secondary signals — Vue** (use to confirm if primary is ambiguous):
 
-| File / Pattern | What it tells you |
-| --- | --- |
-| vue.config.js or vue.config.ts | Vue CLI project config — very strong signal |
-| vite.config.* containing @vitejs/plugin-vue | Vite-based Vue project |
-| src/main.ts or src/main.js containing createApp | Vue 3 bootstrap entrypoint |
-| src/App.vue | Standard Vue root component |
-| *.vue files present | Single-file components — Vue-specific format |
+| File / Pattern                                  | What it tells you                            |
+| ----------------------------------------------- | -------------------------------------------- |
+| vue.config.js or vue.config.ts                  | Vue CLI project config — very strong signal  |
+| vite.config.\* containing @vitejs/plugin-vue    | Vite-based Vue project                       |
+| src/main.ts or src/main.js containing createApp | Vue 3 bootstrap entrypoint                   |
+| src/App.vue                                     | Standard Vue root component                  |
+| \*.vue files present                            | Single-file components — Vue-specific format |
 
 **Secondary signals — TypeScript BFF** (use to confirm if primary is ambiguous):
 
-| File / Pattern | What it tells you |
-| --- | --- |
-| src/main.ts or server.ts at root | Server entrypoint — strong signal |
+| File / Pattern                                             | What it tells you                                |
+| ---------------------------------------------------------- | ------------------------------------------------ |
+| src/main.ts or server.ts at root                           | Server entrypoint — strong signal                |
 | tsconfig.json with "module": "commonjs" or "noEmit": false | Node.js compilation target, not a browser bundle |
-| nest-cli.json | NestJS project — very strong signal |
-| Dockerfile exposing a port | Containerized server application |
-| No index.html, src/app/, or *.vue files | Absence of frontend structure corroborates BFF |
+| nest-cli.json                                              | NestJS project — very strong signal              |
+| Dockerfile exposing a port                                 | Containerized server application                 |
+| No index.html, src/app/, or \*.vue files                   | Absence of frontend structure corroborates BFF   |
 
 The `typescript-bff` type applies the same access control, injection, auth, and logging checks as the server-side TypeScript paths in LFX's Angular repo (for example, its Express-based proxy layer); these checks always target Node.js/TypeScript server code, not browser-only Angular components.
 
 **Secondary signals — Rust** (use to confirm if primary is ambiguous):
 
-| File / Pattern | What it tells you |
-| --- | --- |
-| Cargo.toml | Rust package manifest — definitive signal |
-| Cargo.lock | Rust dependency lockfile |
-| src/main.rs or src/lib.rs | Standard Rust binary or library entrypoint |
-| build.rs | Cargo build script — often includes native deps or FFI |
-| .cargo/config.toml | Workspace-level Cargo configuration |
-| rust-toolchain or rust-toolchain.toml | Pinned Rust toolchain version |
+| File / Pattern                        | What it tells you                                      |
+| ------------------------------------- | ------------------------------------------------------ |
+| Cargo.toml                            | Rust package manifest — definitive signal              |
+| Cargo.lock                            | Rust dependency lockfile                               |
+| src/main.rs or src/lib.rs             | Standard Rust binary or library entrypoint             |
+| build.rs                              | Cargo build script — often includes native deps or FFI |
+| .cargo/config.toml                    | Workspace-level Cargo configuration                    |
+| rust-toolchain or rust-toolchain.toml | Pinned Rust toolchain version                          |
 
 **Secondary signals — Terraform/OpenTofu** (use to confirm if primary is ambiguous):
 
-| File / Pattern | What it tells you |
-| --- | --- |
-| .terraform.lock.hcl | Terraform or OpenTofu dependency lock — very strong signal |
-| versions.tf | Explicit provider and Terraform version constraints |
-| main.tf, variables.tf, outputs.tf | Standard Terraform module structure |
-| .terraform/ directory | Terraform initialized working directory |
-| .opentofu/ directory | OpenTofu initialized working directory |
-| *.tfvars files | Variable value files — check if committed |
+| File / Pattern                    | What it tells you                                          |
+| --------------------------------- | ---------------------------------------------------------- |
+| .terraform.lock.hcl               | Terraform or OpenTofu dependency lock — very strong signal |
+| versions.tf                       | Explicit provider and Terraform version constraints        |
+| main.tf, variables.tf, outputs.tf | Standard Terraform module structure                        |
+| .terraform/ directory             | Terraform initialized working directory                    |
+| .opentofu/ directory              | OpenTofu initialized working directory                     |
+| \*.tfvars files                   | Variable value files — check if committed                  |
 
 **Secondary signals — Database Migrations** (use to confirm if primary is ambiguous):
 
-| File / Pattern | What it tells you |
-| --- | --- |
-| migrations/ or db/migrations/ directory | Standard migration directory layout |
-| V*.sql files | Flyway versioned migration convention |
-| *.up.sql / *.down.sql files | golang-migrate up/down migration convention |
-| atlas.hcl or atlas.sum | Atlas schema management tool |
-| flyway.conf or flyway.toml | Flyway migration configuration |
-| liquibase.properties or changelog.xml | Liquibase migration configuration |
+| File / Pattern                          | What it tells you                           |
+| --------------------------------------- | ------------------------------------------- |
+| migrations/ or db/migrations/ directory | Standard migration directory layout         |
+| V\*.sql files                           | Flyway versioned migration convention       |
+| _.up.sql / _.down.sql files             | golang-migrate up/down migration convention |
+| atlas.hcl or atlas.sum                  | Atlas schema management tool                |
+| flyway.conf or flyway.toml              | Flyway migration configuration              |
+| liquibase.properties or changelog.xml   | Liquibase migration configuration           |
 
 **Do not rely on alone (any framework):**
 
@@ -278,12 +279,12 @@ git diff --name-only origin/main...HEAD | xargs grep -nE \
   2>/dev/null
 ```
 
-| Pattern | Severity |
-| --- | --- |
-| Hardcoded API keys or tokens | CRITICAL |
-| Hardcoded passwords or connection strings | CRITICAL |
+| Pattern                                                   | Severity |
+| --------------------------------------------------------- | -------- |
+| Hardcoded API keys or tokens                              | CRITICAL |
+| Hardcoded passwords or connection strings                 | CRITICAL |
 | AWS/GCP/Azure credentials (AKIA..., service account JSON) | CRITICAL |
-| Private keys in source (-----BEGIN RSA PRIVATE KEY-----) | CRITICAL |
+| Private keys in source (-----BEGIN RSA PRIVATE KEY-----)  | CRITICAL |
 
 **Safe patterns (do not flag):**
 
@@ -326,22 +327,22 @@ Manually verify each flagged handler has an auth-bearing extractor in its parame
 
 Search changed files for weak cryptography:
 
-| Anti-Pattern | Secure Alternative | Severity |
-| --- | --- | --- |
-| MD5 or SHA1 for passwords | bcrypt, argon2 | CRITICAL |
-| Math.random() for tokens or session IDs | crypto.randomBytes() | HIGH |
+| Anti-Pattern                                          | Secure Alternative                    | Severity |
+| ----------------------------------------------------- | ------------------------------------- | -------- |
+| MD5 or SHA1 for passwords                             | bcrypt, argon2                        | CRITICAL |
+| Math.random() for tokens or session IDs               | crypto.randomBytes()                  | HIGH     |
 | JWT with alg: "none" or without algorithm enforcement | Always require and validate algorithm | CRITICAL |
-| Non-HTTPS URLs in environment config | HTTPS endpoints only | HIGH |
-| Short key or token lengths (< 128-bit) | 256-bit minimum | HIGH |
+| Non-HTTPS URLs in environment config                  | HTTPS endpoints only                  | HIGH     |
+| Short key or token lengths (< 128-bit)                | 256-bit minimum                       | HIGH     |
 
 **Rust-specific patterns** — search changed `.rs` files and `Cargo.toml`:
 
-| Anti-Pattern | Secure Alternative | Severity |
-| --- | --- | --- |
-| md5 or sha1 crates used for password hashing | argon2, bcrypt, or pbkdf2 crates | CRITICAL |
-| rand::random() or rand::thread_rng() for security tokens | rand::rngs::OsRng with fill_bytes | HIGH |
-| Custom crypto implementation (hand-rolled AES, RSA, etc.) | Audited crates: ring, rustls, aead | HIGH |
-| openssl crate with verify_peer: false or disabled cert check | Always validate peer certificates | HIGH |
+| Anti-Pattern                                                 | Secure Alternative                 | Severity |
+| ------------------------------------------------------------ | ---------------------------------- | -------- |
+| md5 or sha1 crates used for password hashing                 | argon2, bcrypt, or pbkdf2 crates   | CRITICAL |
+| rand::random() or rand::thread_rng() for security tokens     | rand::rngs::OsRng with fill_bytes  | HIGH     |
+| Custom crypto implementation (hand-rolled AES, RSA, etc.)    | Audited crates: ring, rustls, aead | HIGH     |
+| openssl crate with verify_peer: false or disabled cert check | Always validate peer certificates  | HIGH     |
 
 ```bash
 # Flag use of weak hash crates for passwords
@@ -401,8 +402,8 @@ git diff --name-only origin/main...HEAD | grep -E '\.rs$' | \
 
 Look for:
 
-- `unsafe`** blocks** — flag every new `unsafe` block and verify it has a `//
-  SAFETY:` comment explaining why it cannot cause undefined behavior with
+- `unsafe`** blocks** — flag every new `unsafe` block and verify it has a
+  `// SAFETY:` comment explaining why it cannot cause undefined behavior with
   attacker-controlled data
 - **Command injection** — `Command::new()` or `std::process::Command` with
   values derived from user input without allowlist validation
@@ -458,14 +459,21 @@ try {
 
 Search changed files for PII or sensitive data risks:
 
-- FieldExamplesPasswords or secretspassword, passwd, secret, tokenFinancial datacreditCard, cardNumber, ssnContact infoemail, phone, addressIdentity datadob, dateOfBirth, birthDate, nationalIdDemographic datagender, sex, race, ethnicity
+| Field Category       | Examples                                |
+| :------------------- | :-------------------------------------- |
+| Passwords or secrets | password, passwd, secret, token         |
+| Financial data       | creditCard, cardNumber, ssn             |
+| Contact info         | email, phone, address                   |
+| Identity data        | dob, dateOfBirth, birthDate, nationalId |
+| Demographic data     | gender, sex, race, ethnicity            |
+
 - **Stack traces in API responses** — `res.json({ error: err.stack })` exposes internals
 - **Secrets or PII in URLs** — tokens, emails, or dates of birth in query strings appear in server logs and browser history
 - **Over-returning data** — endpoints returning entire DB rows (including`email`, `dob`, `gender`, `race`, or other PII fields) when only a subset isneeded by the caller
 
 ## Check 8: Terraform/OpenTofu — Infrastructure Security
 
-**Skip if **`HAS_TERRAFORM`** is not set.**
+**Skip if `HAS_TERRAFORM` is not set.**
 
 Search changed `.tf` and `.tfvars` files:
 
@@ -501,12 +509,12 @@ statement {
 
 **Unencrypted storage:**
 
-| Anti-Pattern | Fix | Severity |
-| --- | --- | --- |
-| S3 bucket without server_side_encryption_configuration | Add aws_s3_bucket_server_side_encryption_configuration resource | HIGH |
-| RDS instance with storage_encrypted = false or missing | Set storage_encrypted = true | HIGH |
-| aws_s3_bucket with acl = "public-read" | Remove public ACL; use bucket policies for intentional public access | HIGH |
-| S3 block_public_acls = false or block_public_policy = false | Set all four block_public_* attributes to true | HIGH |
+| Anti-Pattern                                                | Fix                                                                  | Severity |
+| ----------------------------------------------------------- | -------------------------------------------------------------------- | -------- |
+| S3 bucket without server_side_encryption_configuration      | Add aws_s3_bucket_server_side_encryption_configuration resource      | HIGH     |
+| RDS instance with storage_encrypted = false or missing      | Set storage_encrypted = true                                         | HIGH     |
+| aws_s3_bucket with acl = "public-read"                      | Remove public ACL; use bucket policies for intentional public access | HIGH     |
+| S3 block_public_acls = false or block_public_policy = false | Set all four block*public*\* attributes to true                      | HIGH     |
 
 **Sensitive outputs:**
 
@@ -534,7 +542,7 @@ output "db_password" {
 
 ## Check 9: Database Migrations — Schema Security
 
-**Skip if **`HAS_MIGRATIONS`** is not set.**
+**Skip if `HAS_MIGRATIONS` is not set.**
 
 Search changed migration files (`.sql`, `.up.sql`, `.down.sql`):
 
@@ -554,13 +562,13 @@ INSERT INTO users (email, dob) VALUES ('test-user-1@example.invalid', '2000-01-0
 
 - Flag new columns whose names suggest sensitive data stored without encryption or hashing:
 
-| Column name pattern | Concern |
-| --- | --- |
-| password, passwd | Should be a hash — never plain text |
-| ssn, tax_id, national_id | Should be encrypted at rest |
-| credit_card, card_number, cvv | PCI DSS — should not be stored at all, or encrypted |
-| dob, date_of_birth, birth_date | PII — consider column-level encryption |
-| gender, race, ethnicity | Sensitive demographic — verify storage is intentional and documented |
+| Column name pattern            | Concern                                                              |
+| ------------------------------ | -------------------------------------------------------------------- |
+| password, passwd               | Should be a hash — never plain text                                  |
+| ssn, tax_id, national_id       | Should be encrypted at rest                                          |
+| credit_card, card_number, cvv  | PCI DSS — should not be stored at all, or encrypted                  |
+| dob, date_of_birth, birth_date | PII — consider column-level encryption                               |
+| gender, race, ethnicity        | Sensitive demographic — verify storage is intentional and documented |
 
 **Dynamic SQL in migration scripts:**
 
@@ -583,7 +591,7 @@ INSERT INTO users (email, dob) VALUES ('test-user-1@example.invalid', '2000-01-0
 
 # Phase 2: Security Review
 
-**Skip if **`--scan-only`** was passed.**
+**Skip if `--scan-only`** was passed.**
 
 Judgment-based analysis requiring code reading. Scope to changed files only.
 
@@ -723,7 +731,7 @@ db.Raw(`DELETE FROM sessions WHERE user_id = ` + userId);
 ```html
 <!-- Dangerous -->
 <div [innerHTML]="userInput"></div>
-<div dangerouslySetInnerHTML={{__html: userInput}}></div>
+<div dangerouslySetInnerHTML="{{__html:" userInput}}></div>
 {{.UserInput | safeHTML}}
 ```
 
@@ -1091,11 +1099,11 @@ configuration needed.
 
 **Tips for faster scans:**
 
-1. **Use **`--scan-only` for rapid iteration — Phase 2 judgment-based reviews take longer
+1. **Use `--scan-only` for rapid iteration** — Phase 2 judgment-based reviews take longer
 2. **Scope to changed files** — the default behavior is already optimized for PRs
 3. **Exclude generated code** — add `dist/`, `build/`, and `.next/` to `.secignore`
 4. **Let the cache work** — avoid clearing `.security-cache/` unless you suspect stale results
-5. **Use **`--watch`** during development** — eliminates the cost of repeated manual invocations
+5. **Use `--watch` during development** — eliminates the cost of repeated manual invocations
 
 **Benchmark targets:**
 
