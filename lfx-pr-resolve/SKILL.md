@@ -296,10 +296,10 @@ The commit message must clearly state what review feedback was addressed, so tha
 ```
 fix(review): address PR #[number] review feedback
 
-Address review comments from @[reviewer1], @[reviewer2]:
+Address review comments from @[human-reviewer], botname[bot]:
 
-- [file]: [what was changed and why] (per @[reviewer])
-- [file]: [what was changed and why] (per @[reviewer])
+- [file]: [what was changed and why] (per @[human-reviewer])
+- [file]: [what was changed and why] (per botname[bot])
 - [file]: responded to question about [topic]
 
 Resolves [N] review threads.
@@ -320,10 +320,10 @@ git add [specific files that were changed]
 git commit -S --signoff -m "$(cat <<'EOF'
 fix(review): address PR #[number] review feedback
 
-Address review comments from @[reviewer1]:
+Address review comments from @[human-reviewer], botname[bot]:
 
-- path/to/file.ts: renamed variable per reviewer suggestion
-- path/to/component.html: added loading guard for stats display
+- path/to/file.ts: renamed variable per reviewer suggestion (per @alice)
+- path/to/component.html: added loading guard for stats display (per copilot[bot])
 - path/to/service.ts: explained error handling approach (no code change)
 
 Resolves 3 review threads.
@@ -452,15 +452,15 @@ gh pr comment $NUMBER --repo $OWNER/$REPO --body "$(cat <<'EOF'
 Commit: [full SHA]
 
 ### Changes Made
-- **[file]**: [what changed] (per @[reviewer])
-- **[file]**: [what changed] (per @[reviewer])
+- **[file]**: [what changed] (per @[human-reviewer])
+- **[file]**: [what changed] (per botname[bot])
 
 ### Questions Answered
-- **[file]:[line]**: [brief answer] (asked by @[reviewer])
+- **[file]:[line]**: [brief answer] (asked by @[human-reviewer])
 
 [If any comments were identified as false positives:]
 ### No Change Needed
-- **[file]:[line]**: [brief explanation of why the current code is correct and what repo pattern it follows] (flagged by @[reviewer])
+- **[file]:[line]**: [brief explanation of why the current code is correct and what repo pattern it follows] (flagged by botname[bot])
 
 ### Threads Resolved
 [N] of [M] unresolved threads addressed in this iteration.
@@ -478,8 +478,8 @@ EOF
 - **Group by action type** — changes made, questions answered, deferred
 - **Include the commit SHA** so reviewers can see the full diff
 - **Call out anything left open** — don't hide unresolved items
-- **Credit human reviewers** by `@mentioning` them next to their feedback
-- **Never `@mention` bot reviewers** in the summary — use their plain name without the `@` prefix (e.g., write `copilot[bot]` not `@copilot[bot]`). Tagging bots in the summary causes them to re-trigger and attempt to act on already-resolved feedback.
+- **Credit human reviewers** by `@mentioning` them next to their feedback (e.g., write `(per @alice)` or `(asked by @bob)`)
+- **Never `@mention` bot reviewers** in the summary — use their plain name without the `@` prefix (e.g., write `(per copilot[bot])` not `(per @copilot[bot])`). Tagging bots in the summary causes them to re-trigger and attempt to act on already-resolved feedback.
 
 ## Step 12: Dismiss Stale Reviews and Re-request
 
@@ -489,13 +489,13 @@ After pushing changes and posting the summary, dismiss any "changes requested" r
 
 ### Identify Reviews to Dismiss
 
-From the review data fetched in Step 2, find reviews where:
+Use the REST API to list pull request reviews and identify those where:
 - `state` is `CHANGES_REQUESTED`
 - The reviewer had unresolved threads that were addressed in this iteration
 
 ```bash
-# Get all reviews with CHANGES_REQUESTED state
-gh api repos/$OWNER/$REPO/pulls/$NUMBER/reviews --jq '[.[] | select(.state == "CHANGES_REQUESTED") | {id: .id, user: .user.login}]'
+# Get the most recent CHANGES_REQUESTED review per reviewer
+gh api repos/$OWNER/$REPO/pulls/$NUMBER/reviews --jq '[ map(select(.state == "CHANGES_REQUESTED")) | group_by(.user.login)[] | max_by(.submitted_at) | {id: .id, user: .user.login}]'
 ```
 
 ### Dismiss Each Stale Review
@@ -505,8 +505,7 @@ For each reviewer whose "changes requested" review was addressed:
 ```bash
 gh api repos/$OWNER/$REPO/pulls/$NUMBER/reviews/$REVIEW_ID/dismissals \
   -X PUT \
-  -f message="Review feedback has been addressed in commit [short SHA]. Re-requesting your review." \
-  -f event="DISMISS"
+  -f message="Review feedback has been addressed in commit [short SHA]. Re-requesting your review."
 ```
 
 ### Re-request Review
@@ -520,7 +519,7 @@ gh pr edit $NUMBER --repo $OWNER/$REPO --add-reviewer "$REVIEWER_LOGIN"
 If multiple reviewers had changes requested, add all of them:
 
 ```bash
-# For each reviewer whose changes_requested was dismissed
+# All reviewers whose changes_requested was dismissed (comma-separated)
 gh pr edit $NUMBER --repo $OWNER/$REPO --add-reviewer "reviewer1,reviewer2"
 ```
 
