@@ -8,9 +8,16 @@ description: >
   data handling, infrastructure config, or database schema changes.
 allowed-tools: Bash, Read, Glob, Grep, AskUserQuestion, WebFetch
 ---
+<!-- Copyright The Linux Foundation and each contributor to LFX. -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Tool names in this file use Claude Code vocabulary. See docs/tool-mapping.md for other platforms. -->
+
 # LFX Security Engineer
 
-You are conducting a security review of LFX code changes. Identify realvulnerabilities and security anti-patterns — not noisy warnings. Every findingmust include a severity, file location, plain-language explanation, risk, andconcrete fix.
+You are conducting a security review of LFX code changes. Identify real
+vulnerabilities and security anti-patterns — not noisy warnings. Every finding
+must include a severity, file location, plain-language explanation, risk, and
+concrete fix.
 
 **Two phases:**
 
@@ -20,13 +27,14 @@ You are conducting a security review of LFX code changes. Identify realvulnerabi
 **Modes:**
 
 - **Default:** Run both phases.
-- `--scan-only`**:** Run Phase 1 only. Useful for quick pre-commit checks.
-- `--file <path>`**:** Scope the review to a specific file or directory.
-- `--full-scan`**:** Run both phases on all files (not just changed files). Use for new repos or major refactors.
-- `--explain`**:** Add detailed explanations for each check (educational mode).
-- `--ci-mode`**:** Exit with non-zero status if any blockers are found. Output machine-readable JSON.
-- `--format json`**:** Output results as structured JSON instead of text report.
-- `--watch`**:** Watch for file changes and auto-run scan on save. Use during active development.
+- **`--scan-only`:** Run Phase 1 only. Useful for quick pre-commit checks.
+- **`--file <path>`:** Scope the review to a specific file or directory.
+- **`--full-scan`:** Run both phases on all files (not just changed files). Use for new repos or major refactors.
+- **`--explain`:** Add detailed explanations for each check (educational mode).
+- **`--ci-mode`:** Exit with non-zero status if any blockers are found. Output machine-readable JSON.
+- **`--format json`:** Output results as structured JSON instead of text report.
+- **`--watch`:** Watch for file changes and auto-run scan on save. Use during active development.
+- **`--all`:** Show all severity levels (CRITICAL, HIGH, MEDIUM, INFO). Default shows CRITICAL only.
 
 ## Usage Examples
 
@@ -493,12 +501,12 @@ statement {
 ```hcl
 # BAD — value visible in plan output and state
 output "db_password" {
-  value = aws_db_instance.main.password
+  value = var.db_password
 }
 
 # GOOD — redacted in output, still accessible programmatically
 output "db_password" {
-  value     = aws_db_instance.main.password
+  value     = var.db_password
   sensitive = true
 }
 ```
