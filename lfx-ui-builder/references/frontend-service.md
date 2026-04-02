@@ -9,6 +9,8 @@
 
 > **Prerequisite:** The backend endpoint must already exist (validated in Step 3, built earlier if needed). Do not create a frontend service that calls an API endpoint that doesn't exist — no mock data, no placeholder URLs.
 
+> **Query service resources:** When the backend endpoint proxies the query service for a specific resource type, check that type's `docs/indexer-contract.md` (if present) before writing the service. It documents which fields are available in `data`, which `tags` and `filters` are supported, and which `name_and_aliases` fields drive typeahead — use it to ensure the Angular service passes the right query params and maps the response correctly. For a list of all queryable types and where to find each service's contract, see [`lfx-coordinator/references/indexed-data-types.md`](../../lfx-coordinator/references/indexed-data-types.md).
+
 ## Conventions
 
 - `@Injectable({ providedIn: 'root' })` — always tree-shakeable

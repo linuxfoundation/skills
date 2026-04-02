@@ -37,6 +37,7 @@ Before writing ANY code, you MUST:
 1. **Read the target file** (if modifying) — understand what's already there
 2. **Read one example file** in the same domain — match the exact patterns
 3. **Read the relevant interface file** — ensure types match
+4. **Read `docs/indexer-contract.md`** (if it exists in the target service repo and the task touches indexing) — authoritative source for data schemas, tags, access control, and parent references
 
 Do NOT generate code from memory alone. The codebase may have evolved since your training data.
 
@@ -362,6 +363,7 @@ charts/               ← Helm chart for deployment
 - [ ] Domain model has `Tags()` method
 - [ ] Index message published on every write (create, update, delete)
 - [ ] Access message published if resource has FGA type
+- [ ] `docs/indexer-contract.md` (if present) updated if indexing behavior changed (same PR)
 - [ ] Optimistic locking via revision (native services)
 - [ ] Health endpoints (`/livez`, `/readyz`) implemented
 - [ ] Helm chart updated (ruleset, httproute if new paths)

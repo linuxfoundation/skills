@@ -145,3 +145,21 @@ a `flat_object` and OpenSearch handles new keys dynamically.
 If the new field should also be **searchable**, update the `IndexingConfig` construction in
 the resource service's NATS publisher to include it in the appropriate search field
 (`NameAndAliases`, `Tags`, or `Fulltext`).
+
+## Indexer Contract — Per-Service Documentation
+
+Services that follow the indexer contract pattern keep a `docs/indexer-contract.md` at the
+root of their repo. This is the authoritative reference for that service's data schemas,
+tags, access control config, parent references, and fulltext fields — derived directly from
+the source code.
+
+**Read this before writing or modifying indexing code for an existing service.** It tells
+you what is already indexed and how, so you don't duplicate tags, miss required fields, or
+break existing query patterns.
+
+**Update it in the same PR as any indexing change.** The doc must stay in sync with the
+code.
+
+The [committee-service](https://github.com/linuxfoundation/lfx-v2-committee-service/blob/main/docs/indexer-contract.md)
+is the reference implementation of this pattern. Use it as a template when adding a
+contract to a new service.
