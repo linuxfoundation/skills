@@ -34,9 +34,10 @@ Before generating any code, verify your args include:
 
 Before writing ANY code, you MUST:
 
-1. **Read the target file** (if modifying) — understand what's already there
-2. **Read one example file** in the same module — match the exact current patterns
-3. **Read the relevant interface/type file** — ensure types match
+1. **Read the repo's `/develop` skill** (if it exists at `.claude/skills/develop/SKILL.md`) — it defines repo-specific conventions
+2. **Read the target file** (if modifying) — understand what's already there
+3. **Read one example file** in the same module — match the exact current patterns
+4. **Read the relevant interface/type file** — ensure types match
 
 Do NOT generate code from memory alone. The codebase may have evolved since your training data.
 
@@ -47,6 +48,23 @@ This skill only applies to Angular repos. Verify before proceeding:
 ```bash
 { [ -f apps/lfx-one/angular.json ] || [ -f turbo.json ]; } || echo "ERROR: Not an Angular repo — /lfx-ui-builder does not apply here"
 ```
+
+## Repo-Local Conventions Check
+
+Before using the built-in patterns below, check if the current repo has its own development skill:
+
+```bash
+[ -f .claude/skills/develop/SKILL.md ] && echo "REPO_LOCAL_SKILL=true" || echo "REPO_LOCAL_SKILL=false"
+```
+
+**If `.claude/skills/develop/SKILL.md` exists:**
+
+1. **Read it** — it defines how to develop in this specific repo
+2. **Read any architecture docs it references** (e.g., `docs/architecture/frontend/*.md`, rules in `.claude/rules/`)
+3. **Follow its conventions** — repo-local conventions override the built-in patterns in this skill where they conflict
+4. **Still apply this skill's structural rules** — license headers, completion report format, and scope boundaries always apply
+
+**If no repo-local `/develop` skill exists:** proceed with the built-in patterns below as the sole source of truth.
 
 ## License Header
 
