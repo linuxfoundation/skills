@@ -294,6 +294,9 @@ git diff --name-only origin/main...HEAD | xargs grep -nE \
 
 ## Check 2: OWASP A01 — Broken Access Control
 
+Include [a direct link](https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/) 
+to the OWASP A01 website documentation in the report.
+
 **Angular repos** — search changed route and controller files:
 
 - **Missing auth middleware** — Express routes that don't use `authMiddleware` or equivalent
@@ -325,6 +328,9 @@ Manually verify each flagged handler has an auth-bearing extractor in its parame
 
 ## Check 3: OWASP A02 — Cryptographic Failures
 
+Include [a direct link](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/)
+to the OWASP A02 website documentation in the report.
+
 Search changed files for weak cryptography:
 
 | Anti-Pattern                                          | Secure Alternative                    | Severity |
@@ -355,6 +361,9 @@ git diff --name-only origin/main...HEAD | grep -E '\.rs$' | \
 ```
 
 ## Check 4: OWASP A03 — Injection
+
+Include [a direct link](https://owasp.org/Top10/2025/A03_2025-Software_Supply_Chain_Failures/)
+to the OWASP A03 website documentation in the report.
 
 **Angular repos** — search changed TypeScript files:
 
@@ -417,6 +426,9 @@ Look for:
 
 ## Check 5: OWASP A07 — Authentication Failures
 
+Include [a direct link](https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/)
+to the OWASP A07 website documentation in the report.
+
 Search changed authentication-related files (`auth`, `middleware`, `jwt`, `session`, `oauth`):
 
 - **Weak JWT validation** — signature not verified, or expired tokens accepted
@@ -426,6 +438,9 @@ Search changed authentication-related files (`auth`, `middleware`, `jwt`, `sessi
 - **Predictable reset tokens** — password reset using timestamp, sequential ID, or `Math.random()`
 
 ## Check 6: OWASP A09 — Security Logging Failures
+
+Include [a direct link](https://owasp.org/Top10/2025/A09_2025-Security_Logging_and_Alerting_Failures/)
+to the OWASP A09 website documentation in the report.
 
 Verify security-relevant events are logged in changed files. Look for:
 
@@ -1115,7 +1130,7 @@ configuration needed.
 
 **This skill DOES:**
 
-- Scan changed files for OWASP Top 10 vulnerability patterns
+- Scan changed files for [OWASP Top 10 vulnerability patterns](https://owasp.org/Top10/2025/)
 - Review authentication and authorization implementations
 - Flag hardcoded secrets, tokens, and credentials
 - Flag PII exposure risks (email, date of birth, demographic data, financial data)
