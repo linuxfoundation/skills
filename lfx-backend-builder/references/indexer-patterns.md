@@ -139,8 +139,8 @@ Key fields in every indexed document:
 
 ## Adding a New Field to an Existing Resource
 
-Adding a new field to the `data` payload requires no schema changes — `data` is a
-`flat_object` and the search backend handles new keys dynamically.
+Adding a new field to the `data` payload requires no OpenSearch schema changes — `data` is
+a `flat_object` and OpenSearch handles new keys dynamically.
 
 If the new field should also be **searchable**, update the `IndexingConfig` construction in
 the resource service's NATS publisher to include it in the appropriate search field
