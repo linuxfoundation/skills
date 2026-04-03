@@ -1,6 +1,7 @@
 ---
 name: lfx-cdp-snowflake-connectors
 description: Use when adding a new snowflake-connector data source to crowd.dev — a new platform or a new source within an existing platform that needs buildSourceQuery, transformer, activity types, migration, and all associated type registrations scaffolded.
+allowed-tools: Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion, mcp__claude_ai_LFX_BI_Layer__get_all_sources, mcp__claude_ai_LFX_BI_Layer__get_source_details, mcp__claude_ai_LFX_BI_Layer__list_metrics, mcp__claude_ai_LFX_BI_Layer__get_dimensions, mcp__claude_ai_LFX_BI_Layer__query_metrics
 ---
 
 # Scaffold Snowflake Connector
