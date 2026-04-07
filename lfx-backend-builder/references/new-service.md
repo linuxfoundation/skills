@@ -141,6 +141,7 @@ New services must include the full OTEL stack:
 - [ ] Handler ↔ service ↔ storage wired
 - [ ] Index message published on every write (create, update, delete)
 - [ ] Access message published on every write (if resource has FGA type)
+- [ ] `docs/fga-contract.md` added (if resource has FGA type)
 - [ ] OpenFGA authorization model updated (if resource has FGA type)
 - [ ] Heimdall auth rules in Helm chart
 - [ ] `/livez` and `/readyz` endpoints
