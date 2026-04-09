@@ -239,3 +239,24 @@ Common causes:
 - User's LFID in the JWT doesn't match the username stored in the tuple
 - Member was added without a `username` — fga-sync skips tuple writes silently when username is empty
 - Cache is stale — any successful OpenFGA write re-invalidates; or manually write to the `inv` KV key
+
+## FGA Contract — Per-Service Documentation
+
+Services that follow the FGA contract pattern keep a `docs/fga-contract.md` at the root
+of their repo. This is the authoritative reference for that service's object types,
+message schemas, operations, relations, and trigger conditions — derived directly from
+the source code.
+
+**Read this before writing or modifying FGA message construction for an existing service.**
+It tells you what subjects are used, what payload shape is expected, and what conditions
+cause messages to be skipped (e.g. empty username).
+
+**Update it in the same PR as any FGA messaging change.** The doc must stay in sync with
+the code.
+
+The [committee-service](https://github.com/linuxfoundation/lfx-v2-committee-service/blob/main/docs/fga-contract.md)
+is the reference implementation of this pattern. Use it as a template when adding a
+contract to a new service.
+
+For a full index of all services and their FGA object types, see
+`lfx-coordinator/references/fga-protected-types.md`.

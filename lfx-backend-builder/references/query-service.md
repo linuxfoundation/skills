@@ -40,7 +40,9 @@ document is silently dropped from results.
 | `parent` | string | Filter by `parent_refs` (format: `project:uuid`) |
 | `tags` | []string | OR filter — any tag matches |
 | `tags_all` | []string | AND filter — all tags must match |
-| `filters` | []string | Exact field filters (format: `field:value`, against `data.*`) |
+| `filters` | []string | AND filter — exact field filters (format: `field:value`, against `data.*`). Prefer `filters_all` going forward |
+| `filters_all` | []string | AND filter — all provided filters must match. Explicit preferred alias for `filters` |
+| `filters_or` | []string | OR filter — at least one provided filter must match (format: `field:value`, against `data.*`) |
 | `date_field` | string | Field within `data` to range-filter on |
 | `date_from` / `date_to` | string | ISO 8601 or `YYYY-MM-DD` |
 | `cel_filter` | string | CEL expression for in-process filtering (applied after OpenSearch, before access check) |
@@ -147,8 +149,9 @@ curl "$OPENSEARCH_URL/lfx-resources/_search" -H 'Content-Type: application/json'
 | Mechanism | Use for | How it works |
 | --- | --- | --- |
 | `tags` / `tags_all` | Values in the `tags` field (exact match) | OpenSearch `term` query |
-| `filters` | Values inside the `data` object (format: `field:value`) | OpenSearch `term` on `data.{field}` |
-| `cel_filter` | Complex expressions not expressible via tags/filters | Applied in-process after OpenSearch |
+| `filters` / `filters_all` | AND logic — all filters must match; values inside `data` (format: `field:value`) | Individual `term` clauses in OpenSearch `must` |
+| `filters_or` | OR logic — at least one filter must match; same format as `filters` | Nested `bool/should` with `minimum_should_match: 1` inside `must` |
+| `cel_filter` | Complex expressions not expressible via tags/filters | Applied in-process after OpenSearch, before access check |
 
 Resource services control what appears in `tags` via the `Tags()` method on their
 domain model — see [indexer-patterns.md](indexer-patterns.md).
