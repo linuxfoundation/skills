@@ -135,6 +135,7 @@ The skills form a layered system where each skill has a clear responsibility and
 | `/lfx-setup` | Environment setup — prerequisites, clone, install, env vars, dev server. Adapts to Angular or Go repos | Interactive guide | Bash, Read, Glob, Grep, AskUserQuestion |
 | `/lfx-test-journey` | Combine branches from multiple repos into worktrees for journey testing | Interactive | Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion |
 | `/lfx-intercom` | Add or fix Intercom integration against the LFX canonical pattern — audits JWT setup, shutdown, Auth0 claim, app IDs, CSP | Audit + fix | Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion |
+| `/lfx-cdp-snowflake-connectors` | Streamlines adding a new Snowflake connector to CDP — requires knowledge of the source specs | Interactive and guided | Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion |
 
 > **Note:** Tool names in the table above follow Claude Code conventions. See [docs/tool-mapping.md](docs/tool-mapping.md) for equivalents on other platforms.
 
@@ -472,8 +473,10 @@ An **interactive setup guide** that walks through environment configuration step
 │   └── SKILL.md                    # Environment setup guide
 ├── lfx-test-journey/
 │   └── SKILL.md                    # Multi-branch journey testing
-└── lfx-intercom/
-    └── SKILL.md                    # Intercom integration — add or fix to LFX standard
+├── lfx-intercom/
+│   └── SKILL.md                    # Intercom integration — add or fix to LFX standard
+└── lfx-cdp-snowflake-connectors/
+    └── SKILL.md                    # Snowflake connector scaffolding for CDP
 ```
 
 ## License
