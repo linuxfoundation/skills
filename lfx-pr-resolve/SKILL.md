@@ -256,7 +256,7 @@ Work through the approved comments systematically.
 
 ### For Discussion Items
 
-Only address these after the user provides direction in Step 3.
+Only address these after the user provides direction in Step 4.
 
 ### Delegation to Builder Skills
 
@@ -331,9 +331,26 @@ EOF
 )"
 ```
 
-## Step 8: Respond to Each Comment Thread
+## Step 8: Push Changes
 
-After committing, respond to each review thread on GitHub. This is the critical feedback loop — reviewers need to know their comments were heard and addressed.
+Push the commit to the remote branch **before** posting any comments, resolving threads, or posting summaries. This ensures that when bots and reviewers are notified of your responses, the code changes are already available for them to validate.
+
+```bash
+git push
+```
+
+If the push fails due to remote changes, pull and rebase first:
+
+```bash
+git pull --rebase origin $(git branch --show-current)
+# Re-run quick validation after rebase
+yarn lint && yarn build
+git push
+```
+
+## Step 9: Respond to Each Comment Thread
+
+After pushing, respond to each review thread on GitHub. This is the critical feedback loop — reviewers need to know their comments were heard and addressed.
 
 ### Response Format by Category
 
@@ -401,7 +418,7 @@ the same approach in [file1], [file2], etc."]
 - **Be professional and appreciative** — reviewers spent time reading the code. Acknowledge good catches.
 - **Never `@mention` bot reviewers** — when replying to a bot's thread, do not include `@botname` in the response body. Tagging bots causes them to re-trigger and attempt to re-review or act on already-resolved feedback.
 
-## Step 9: Resolve Review Threads
+## Step 10: Resolve Review Threads
 
 After responding to each thread, resolve it. Only resolve threads where the feedback has been fully addressed — if a thread required user input and the user chose not to address it, leave it unresolved.
 
@@ -423,23 +440,6 @@ GRAPHQL
 - The user explicitly said to skip or defer a comment
 - The change couldn't be made due to a technical constraint (explain why in the response, leave unresolved)
 - You're unsure whether your change fully addresses the feedback — leave unresolved and let the reviewer confirm
-
-## Step 10: Push Changes
-
-Push the commit to the remote branch:
-
-```bash
-git push
-```
-
-If the push fails due to remote changes, pull and rebase first:
-
-```bash
-git pull --rebase origin $(git branch --show-current)
-# Re-run quick validation after rebase
-yarn lint && yarn build
-git push
-```
 
 ## Step 11: Post Summary Comment
 
@@ -485,7 +485,7 @@ EOF
 
 After pushing changes and posting the summary, dismiss any "changes requested" reviews from reviewers whose feedback was addressed, then re-request their review so they're prompted to look at the updated code.
 
-**Only do this if changes were pushed in Step 10.** If no code changes were made (e.g., only questions were answered), skip this step.
+**Only do this if changes were pushed in Step 8.** If no code changes were made (e.g., only questions were answered), skip this step.
 
 ### Identify Reviews to Dismiss
 
