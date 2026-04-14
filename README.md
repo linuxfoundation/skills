@@ -68,6 +68,7 @@ Restart your AI coding assistant (or open a new session) in any LFX repo and typ
 /lfx-product-architect
 /lfx-preflight
 /lfx-pr-catchup
+/lfx-pr-resolve
 /lfx-setup
 /lfx-test-journey
 /lfx-intercom
@@ -117,6 +118,8 @@ The skills form a layered system where each skill has a clear responsibility and
 │  /lfx-preflight (validation)  │  /lfx-setup (env)      │
 ├───────────────────────────────┴─────────────────────────┤
 │  /lfx-pr-catchup (standalone — morning PR dashboard)    │
+├─────────────────────────────────────────────────────────┤
+│  /lfx-pr-resolve (standalone — resolve PR feedback)     │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -132,6 +135,7 @@ The skills form a layered system where each skill has a clear responsibility and
 | `/lfx-product-architect` | Answers "where should this go?", traces data flows, makes placement decisions, explains design patterns | Read-only | Bash, Read, Glob, Grep, AskUserQuestion |
 | `/lfx-preflight` | Pre-PR validation — Phase 1 auto-fixes (format, license, lint, build), Phase 2 code review (15 report-only checks for Angular). Pass `--skip-review` to skip Phase 2 | Validate + review | Bash, Read, **Write, Edit**, Glob, Grep, AskUserQuestion |
 | `/lfx-pr-catchup` | Morning PR dashboard — unresolved comments, status changes, stale PRs, approved-but-not-merged across all your open PRs | Read-only | Bash, Read, Glob, Grep, AskUserQuestion |
+| `/lfx-pr-resolve` | Address PR review comments — fetches unresolved threads, makes code changes, commits, responds to reviewers, resolves threads, dismisses stale reviews, and re-requests review | Read + write + GitHub | Bash, Read, **Write, Edit**, Glob, Grep, AskUserQuestion, **Skill** |
 | `/lfx-setup` | Environment setup — prerequisites, clone, install, env vars, dev server. Adapts to Angular or Go repos | Interactive guide | Bash, Read, Glob, Grep, AskUserQuestion |
 | `/lfx-test-journey` | Combine branches from multiple repos into worktrees for journey testing | Interactive | Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion |
 | `/lfx-intercom` | Add or fix Intercom integration against the LFX canonical pattern — audits JWT setup, shutdown, Auth0 claim, app IDs, CSP | Audit + fix | Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion |
@@ -319,6 +323,32 @@ A **read-only** morning dashboard that shows all your open PRs across repos, cla
 
 ---
 
+### `/lfx-pr-resolve`
+
+Addresses PR review feedback end-to-end: reads unresolved comment threads, makes code changes, commits, responds to each reviewer on GitHub, resolves threads, posts a summary comment, dismisses stale "changes requested" reviews, and re-requests review.
+
+**Workflow:**
+1. **Identify PR** — from a PR number, URL, or auto-detect from the current branch
+2. **Fetch threads** — single GraphQL call for all review threads and reviews (up to 100 threads, 20 comments each)
+3. **Detect bot reviewers** — identifies AI bots (copilot, coderabbitai, etc.) to avoid `@mentioning` them (which re-triggers bot reviews)
+4. **Validate each comment** — reads the actual code and checks repo patterns before implementing. Catches false positives where a reviewer's suggestion conflicts with repo conventions
+5. **Categorize and present** — groups comments into code changes, questions, false positives, and discussion items. **Pauses for user approval**
+6. **Address feedback** — makes targeted code changes, delegates complex refactors to `/lfx-backend-builder` or `/lfx-ui-builder`
+7. **Validate** — runs format, lint, build before committing
+8. **Commit** — single commit per review iteration with detailed summary crediting reviewers
+9. **Respond and resolve** — replies to each thread on GitHub, resolves addressed threads
+10. **Push and summarize** — pushes changes, posts a summary comment on the PR
+11. **Refresh reviews** — dismisses stale "changes requested" reviews, re-requests review from addressed reviewers
+
+**Key behaviors:**
+- Validates reviewer suggestions against actual repo patterns before implementing — prevents introducing anti-patterns from misguided feedback
+- Handles false positives gracefully with respectful, evidence-backed explanations
+- Credits human reviewers with `@mentions`, but never `@mentions` bot reviewers (avoids re-triggering AI review tools)
+- Idempotent — safe to re-run; only picks up threads that are still unresolved
+- Delegates complex multi-file changes to builder skills when appropriate
+
+---
+
 ### `/lfx-test-journey` — Multi-Branch Journey Testing
 
 Combines feature branches from one or more repos into isolated git worktrees for end-to-end journey testing. Use this when you have a user journey spread across multiple PRs/branches and need to test everything together before merging.
@@ -413,6 +443,12 @@ An **interactive setup guide** that walks through environment configuration step
 /lfx-pr-catchup → fetches open PRs → enriches via GraphQL → renders attention dashboard → drill-down
 ```
 
+### Address PR review feedback
+```
+/lfx-pr-resolve → fetches unresolved threads → validates against repo patterns → makes changes → commits → responds → resolves → re-requests review
+/lfx-pr-resolve #142 → targets a specific PR by number
+```
+
 ### Test a multi-branch user journey
 ```
 /lfx-test-journey → pick repos → pick branches → creates worktrees → cd into worktree → yarn start
@@ -469,6 +505,8 @@ An **interactive setup guide** that walks through environment configuration step
 │   └── SKILL.md                    # Pre-PR validation and auto-fix
 ├── lfx-pr-catchup/
 │   └── SKILL.md                    # Morning PR catch-up dashboard
+├── lfx-pr-resolve/
+│   └── SKILL.md                    # PR review comment resolver
 ├── lfx-setup/
 │   └── SKILL.md                    # Environment setup guide
 ├── lfx-test-journey/
