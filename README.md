@@ -65,6 +65,7 @@ Restart your AI coding assistant (or open a new session) in any LFX repo and typ
 /lfx-research
 /lfx-backend-builder
 /lfx-ui-builder
+/lfx-data-engineer
 /lfx-product-architect
 /lfx-preflight
 /lfx-pr-catchup
@@ -102,22 +103,22 @@ rm -f ~/.claude/skills/lfx
 The skills form a layered system where each skill has a clear responsibility and mode of operation:
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    /lfx (entry point)                     │
-│     Plain-language router — describe what you want       │
-├─────────────────────────────────────────────────────────┤
-│              /lfx-coordinator (orchestrator)             │
-│       Researches, plans, delegates, validates            │
-├──────────┬──────────┬───────────────┬───────────────────┤
-│ /lfx-    │ /lfx-    │ /lfx-product- │ /lfx-research    │
-│ backend- │ ui-      │ architect      │ (read-only       │
-│ builder  │ builder  │ (read-only     │  exploration)    │
-│ (codegen)│ (codegen)│  guidance)     │                  │
-├──────────┴──────────┴───────────────┴───────────────────┤
-│  /lfx-preflight (validation)  │  /lfx-setup (env)      │
-├───────────────────────────────┴─────────────────────────┤
-│  /lfx-pr-catchup (standalone — morning PR dashboard)    │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                       /lfx (entry point)                          │
+│        Plain-language router — describe what you want             │
+├──────────────────────────────────────────────────────────────────┤
+│                 /lfx-coordinator (orchestrator)                   │
+│          Researches, plans, delegates, validates                  │
+├──────────┬──────────┬──────────┬───────────────┬────────────────┤
+│ /lfx-    │ /lfx-    │ /lfx-    │ /lfx-product- │ /lfx-research │
+│ backend- │ ui-      │ data-    │ architect      │ (read-only    │
+│ builder  │ builder  │ engineer │ (read-only     │  exploration) │
+│ (codegen)│ (codegen)│ (codegen)│  guidance)     │               │
+├──────────┴──────────┴──────────┴───────────────┴────────────────┤
+│  /lfx-preflight (validation)  │  /lfx-setup (env)               │
+├───────────────────────────────┴──────────────────────────────────┤
+│  /lfx-pr-catchup (standalone — morning PR dashboard)             │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ## Skill Overview
@@ -129,6 +130,7 @@ The skills form a layered system where each skill has a clear responsibility and
 | `/lfx-research` | Explores upstream APIs, discovers code patterns, reads architecture docs, validates contracts via MCP | Read-only | Bash, Read, Glob, Grep, AskUserQuestion, **WebFetch** |
 | `/lfx-backend-builder` | Generates Express.js proxy endpoints, Go microservice code, shared types. Encodes three-file pattern, logging, Goa DSL, NATS messaging | Code gen | Bash, Read, **Write, Edit**, Glob, Grep, AskUserQuestion |
 | `/lfx-ui-builder` | Generates Angular 20 components, services, drawers, pagination UI, styling. Encodes signal patterns, PrimeNG wrappers | Code gen | Bash, Read, **Write, Edit**, Glob, Grep, AskUserQuestion |
+| `/lfx-data-engineer` | Generates PR-ready dbt models, tests, and SQL transformations. Encodes medallion architecture, Snowflake SQL conventions, sqlfluff formatting, macros, and data governance | Code gen | Bash, Read, **Write, Edit**, Glob, Grep, AskUserQuestion |
 | `/lfx-product-architect` | Answers "where should this go?", traces data flows, makes placement decisions, explains design patterns | Read-only | Bash, Read, Glob, Grep, AskUserQuestion |
 | `/lfx-preflight` | Pre-PR validation — Phase 1 auto-fixes (format, license, lint, build), Phase 2 code review (15 report-only checks for Angular). Pass `--skip-review` to skip Phase 2 | Validate + review | Bash, Read, **Write, Edit**, Glob, Grep, AskUserQuestion |
 | `/lfx-pr-catchup` | Morning PR dashboard — unresolved comments, status changes, stale PRs, approved-but-not-merged across all your open PRs | Read-only | Bash, Read, Glob, Grep, AskUserQuestion |
@@ -256,6 +258,36 @@ Generates **PR-ready Angular 20 frontend code** — components, services, drawer
 |-----------|---------|
 | `frontend-component.md` | Component placement, class structure, signal types, template rules, drawer conventions |
 | `frontend-service.md` | Service patterns, state management, signals vs RxJS guidance |
+
+---
+
+### `/lfx-data-engineer`
+
+Generates **PR-ready dbt models, tests, and SQL transformations** for the `lf-dbt` repository. Guides non-dbt developers through the medallion architecture and encodes all project conventions.
+
+**Medallion layers:**
+- **Bronze** — 1:1 with source data, column renames, type casting, delete filtering
+- **Silver** — business logic, joins, reusable objects (`dim/` and `fact/`)
+- **Gold** — aggregated metrics for specific business use cases
+- **Platinum** — pre-computed reports with time windows for dashboards
+
+**Key capabilities:**
+- Generates models with proper `source()`/`ref()` references, CTEs, and naming conventions
+- Creates YML test files with `data_tests:`, `arguments:` wrappers, and PII tagging (dbt v1.10.5+)
+- Applies project macros (`smart_source`, `format_timestamp`, date range helpers, delta helpers)
+- Validates with `sqlfluff lint` and `dbt compile`
+- Enforces SQL style rules (uppercase keywords, trailing commas, CTEs over subqueries, no `SELECT DISTINCT`)
+
+**Reference docs included:**
+
+| Reference | Content |
+|-----------|---------|
+| `getting-started.md` | Environment setup, dbt commands, clone workflow, Makefile targets |
+| `medallion-architecture.md` | Layer guide with SQL examples, schema mapping, decision tree |
+| `sql-style-guide.md` | Formatting rules from `.sqlfluff` and project conventions |
+| `testing-patterns.md` | dbt test conventions, PII tagging, primary key tests |
+| `key-macros.md` | Project macros: smart_source, format_timestamp, date ranges, deltas |
+| `debugging-pipelines.md` | Common failures, sqlfluff fixes, incremental issues |
 
 ---
 
@@ -408,6 +440,11 @@ An **interactive setup guide** that walks through environment configuration step
 /lfx-ui-builder → generates Angular component + service
 ```
 
+### Build or modify data models
+```
+/lfx-data-engineer → generates dbt model + YML tests → sqlfluff lint → dbt compile → PR
+```
+
 ### Morning PR catch-up
 ```
 /lfx-pr-catchup → fetches open PRs → enriches via GraphQL → renders attention dashboard → drill-down
@@ -463,6 +500,15 @@ An **interactive setup guide** that walks through environment configuration step
 │   └── references/
 │       ├── frontend-component.md   # Component patterns and conventions
 │       └── frontend-service.md     # Service patterns and state management
+├── lfx-data-engineer/
+│   ├── SKILL.md                    # dbt model + SQL transformation codegen
+│   └── references/
+│       ├── getting-started.md      # Environment setup and dbt commands
+│       ├── medallion-architecture.md # Layer guide with SQL examples
+│       ├── sql-style-guide.md      # SQL formatting rules
+│       ├── testing-patterns.md     # dbt test conventions and PII tagging
+│       ├── key-macros.md           # Project macros reference
+│       └── debugging-pipelines.md  # Troubleshooting common failures
 ├── lfx-product-architect/
 │   └── SKILL.md                    # Architecture guidance and decision trees
 ├── lfx-preflight/
