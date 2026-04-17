@@ -25,7 +25,7 @@ failed=0
 for skill_path in "$SCRIPT_DIR"/lfx-*/ "$SCRIPT_DIR"/lfx/; do
   [ -d "$skill_path" ] || continue
 
-  skill_name="$(basename "$skill_path")"
+  skill_name="$(basename "${skill_path%/}")"
   target="$SKILLS_DIR/$skill_name"
 
   if [ -L "$target" ]; then
