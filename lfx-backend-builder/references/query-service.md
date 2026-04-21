@@ -144,6 +144,27 @@ curl "$OPENSEARCH_URL/lfx-resources/_search" -H 'Content-Type: application/json'
 }'
 ```
 
+## Query Complexity Limits
+
+OpenSearch enforces a hard limit of **1024 clauses** per query. Exceeding it returns **400 Bad Request** with:
+
+```json
+{ "message": "query exceeds the OpenSearch maximum clause limit (1024): reduce the number of filter values" }
+```
+
+Each parameter contributes clauses as follows:
+
+| Parameter | Clauses |
+| --- | --- |
+| `type`, `parent`, `name` | 1 each |
+| `date_field` + `date_from`/`date_to` | 1 total |
+| `tags`, `tags_all`, `filters`, `filters_all` | 1 per value |
+| `filters_or` | 1 (wrapping bool) + 1 per value |
+| Fixed (`latest: true`) | 1 always |
+| `public` / `private` visibility filter | 1 when applicable |
+
+Keep the total number of values across all multi-value parameters well below 1000. `filters_or` is the most clause-expensive parameter since it adds an extra wrapping clause.
+
 ## tags vs filters vs cel_filter
 
 | Mechanism | Use for | How it works |
